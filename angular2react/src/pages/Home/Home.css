@@ -1,0 +1,45 @@
+.home { 
+    padding: 5rem 0;
+    margin: 0 auto;
+    background-color: transparent;
+    text-align: center;
+    max-width: 600px;
+}
+
+.home .title {
+    color: white;
+    font-weight: bold;
+    font-size: 3rem;
+    margin: 75px 0;
+}
+
+.home .description {
+    color: white;
+    font-size: 1.2rem;
+    padding: 50px auto;
+}
+
+.home .bold { 
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.cta {
+    display: inline-block;
+    background-color: #2f1793;
+    border: 1px solid white;
+    border-radius: 25px;
+    color: white;
+    font-size: 1.6rem;
+    padding: 15px 30px;
+    margin: 75px 0;
+    text-decoration: none;
+}
+
+.cta:hover { 
+    background-color: rgb(125, 102, 218); 
+}
+
+.two { 
+    color: yellow;
+}

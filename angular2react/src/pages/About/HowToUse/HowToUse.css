@@ -1,0 +1,29 @@
+.how-to-use .title {
+    text-align: center;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.how-to-use .steps p { 
+    color: white;
+    font-size: 1.2rem;
+}
+
+.how-to-use .steps ul { 
+  list-style-type: none;
+}
+
+.how-to-use .steps li { 
+    color: white;
+    padding: 10px 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.how-to-use .checkmark {
+    color: rgb(110, 255, 110);
+    background-color: green;
+    border-radius: 50%;
+    margin-right: 10px;
+}

@@ -1,0 +1,110 @@
+.navbar { 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    padding: 20px 5%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    z-index: 30;
+}
+
+.navbar:hover { 
+    background-color: #2f1793;
+}
+
+.navbar .logo {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.navbar .logo .two { 
+    color: yellow; 
+}
+
+.navbar .links {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    left: -100%;
+}
+
+.navbar .links li a{ 
+    margin-right: 10px;
+    text-decoration: none;
+    padding: 8px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.navbar .links li a:hover {
+    color: #98c3d2;
+}
+
+
+.navbar .active { 
+    background-color: rgba(226, 220, 250, 0.2); 
+}
+
+@media only screen and (max-width: 800px) { 
+    .navbar .links li a{ 
+        margin-right: 5px;
+        text-decoration: none;
+        padding: 8px;
+        font-size: 1.2rem;
+        color: white;
+    }    
+}
+
+@media only screen and (max-width: 600px) { 
+    .navbar .links {
+        position: absolute;
+        top: 4rem;
+        left: -100%;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        z-index: 30;
+        transition: left .3s ease-in-out;
+    }
+
+    .navbar .links.open { 
+        left: 0;
+    }
+
+    .navbar .links.closed { 
+        left: -100%;
+    }
+
+    .navbar .links li { 
+        background-color: #4700D8;
+        text-align: center;
+        color: white;
+        font-size: 2rem;
+        width: 100%;
+        height: 4rem;
+        border-bottom: 1px solid #2f1793;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* box-shadow: 0 5px 1px rgba(255 255 255 / 0.5); */
+    }
+
+    .navbar .links li a:hover { 
+        color: #2f1793;
+    }
+
+    .navbar .links li:last-of-type { 
+        border-bottom: none;
+    }
+
+    .navbar .active { 
+        background-color: transparent;
+        text-decoration: none;
+    }
+}
+

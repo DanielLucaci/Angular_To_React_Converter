@@ -1,0 +1,38 @@
+.question-box:nth-of-type(1) {
+    border-top: 2px solid gray;
+}
+
+.question-box { 
+    border-bottom: 2px solid gray;
+    padding: 20px 0;
+}
+
+.question-box .question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: transparent;
+}
+
+
+
+.question-box .question p {
+    flex: 10;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.question-box .toggle-question {
+    color: white;
+}
+
+.question-box .answer { 
+    color: white;
+    margin: 5px 0 5px 0;
+    font-size: 1.2rem;
+}
+
+.question-box .answer p::first-line { 
+    margin-left: 20px;
+}

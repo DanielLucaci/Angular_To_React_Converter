@@ -1,0 +1,153 @@
+.upload { 
+    width: 500px;
+    margin: 10rem auto auto 3rem;
+    text-align: center;
+}
+
+.title{ 
+    font-weight: bold;
+    font-size: 2rem;
+    color: white;
+}
+
+.important { 
+    font-size: 1.2rem;
+    color: red;
+    padding: 20px 0;
+}
+
+/* Main section */
+.main { 
+    background-color: white;
+    border-radius: 1rem;
+}
+
+.buttons { 
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.button__upload,
+.button__clear,
+.convert { 
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button__upload svg,
+.button__clear svg,
+.convert svg { 
+    margin-right: 10px;
+    transform: translateY(2px);
+}
+
+.button__upload {
+    background-color: #2a73d9;
+    margin: 10px;
+}
+
+.button__clear { 
+    background-color: #d44d3b;
+}
+
+.button__clear:disabled,
+.convert:disabled { 
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.error { 
+    color: red;
+    padding: 5px 0;
+}
+
+/* Drop caption  */
+.drop-caption { 
+    height: 10rem;
+    position: relative;
+    padding: 10px;
+}
+
+.drop-caption__border { 
+    position: absolute;
+    height: 100%;
+    width : 90%;
+    left: 5%;
+    top: 0;
+    border: 3px dashed #b9d2f3;
+    border-radius: 10px;
+}
+
+.drop-caption__text {
+    position: absolute;
+    color: #b9d2f3;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+}
+
+.drop-caption__item {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #E5EFC1;
+    border-radius: 10px;
+    padding: 10px 15px;
+    box-shadow: 0 0 10px blue;
+}
+
+.drop-caption__item:hover { 
+    background-color: #A2D5AB;
+}
+
+.drop-caption__archive {
+    color: #557B83;
+}
+
+.drop-caption__logo {
+    margin: 8px 0;
+}
+
+.drop-caption__remove { 
+    border: none;
+    background-color: #b81b07;
+    padding: 5px 5px;
+    color: white;
+    font-size: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.drop-caption__remove:hover { 
+    background-color: #d44d3b;
+}
+
+.convert {
+    margin: 10px auto;
+    background-color: #38404b;
+}
+
+@media only screen and (max-width: 1280px) { 
+    .upload {
+        width: 400px;
+        margin-left: 1.5rem;
+    }
+}
+
+@media only screen and (max-width: 800px) { 
+    .upload { 
+        margin: 10rem auto auto auto;
+    }
+}

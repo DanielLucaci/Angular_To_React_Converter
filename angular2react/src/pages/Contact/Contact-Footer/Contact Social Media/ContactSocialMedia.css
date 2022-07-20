@@ -1,0 +1,30 @@
+.social-media h4 { 
+    text-align: center;
+    color: #1282A2;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.social-media .links {
+    list-style-type: none;
+}
+
+.social-media .links li { 
+    display: inline-block;
+    margin-right: 10px;
+}
+
+@media only screen and (max-width: 650px) { 
+    .social-media h4 { 
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .social-media .links { 
+        display: grid;
+        text-align: center;
+        grid-template-rows: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+    }
+}

@@ -1,0 +1,44 @@
+.gif { 
+    height: 100px;
+    width: 100px;
+    margin: 120px auto;
+}
+
+.message { 
+  margin: 10px auto;
+  width: 100px;
+  color: #7FFF00;
+  text-transform: capitalize;
+  margin-bottom: 50px;
+}
+
+.bar { 
+  margin: 10px auto;
+  width: 500px;
+  height: 30px;
+  background-color: white;
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.loading { 
+  background-color: green;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+}
+
+.percentage { 
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}

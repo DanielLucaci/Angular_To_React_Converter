@@ -1,0 +1,22 @@
+.message-status { 
+    height: 100px;
+    padding: 0 30px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 15px;
+    color: white;
+    font-size: 18px;
+}
+
+.x { 
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
