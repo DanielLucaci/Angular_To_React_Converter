@@ -5,6 +5,8 @@ import AppModuleParser from "./Parser/AppModule/AppModuleParser";
 import HTMLParser from "./Parser/HTML/HTMLParser";
 import Utilities from "./Utilities";
 import Directors from "./Directors";
+import store from "../store/index";
+import conversionSliceActions from "../store/conversion-slice";
 
 export class Archive {
   constructor(folders) {
@@ -16,6 +18,11 @@ export class Archive {
     this.dirTree = new Directors("src");
     this.archive = null;
     this.location = null;
+    this.timeout = null;
+  }
+
+  sleep(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
   traversal(tree) {
@@ -46,31 +53,45 @@ export class Archive {
   }
 
   async compute() {
-    // Parse app.module.ts first
-    await this.parse("app.module.ts", new AppModuleParser());
+    try {
+      console.log(store.getState());
 
-    // Iterate over every file and add their path
-    this.dirTree.children.push(new Directors("src"));
-
-    properties.components.forEach((c) => {
-      const { name } = c;
-
-      // Get the coresponding path;
-      let { path } = this.getFileInfo(
-        `${Utilities.componentToSelector(name)}.component.html`
+      // Parse app.module.ts first
+      store.dispatch(
+        conversionSliceActions.update({
+          message: 'Parsing "app.module.ts"',
+          percentage: 5,
+        })
       );
+      await this.parse("app.module.ts", new AppModuleParser());
 
-      (path = path.split("/"))[1] = "components";
-      c.path = path.join("/");
-    });
+      // Iterate over every file and add their path
+      this.dirTree.children.push(new Directors("src"));
 
-    this.component = properties.getComponentByName("App");
-    this.component.visited = true;
+      properties.components.forEach((c) => {
+        const { name } = c;
 
-    // Parse AppComponent
-    await this.parse("app.component.html", new HTMLParser(this.component));
-    this.traversal(this.urlTree);
-    console.log(this.text);
+        // Get the coresponding path;
+        let { path } = this.getFileInfo(
+          `${Utilities.componentToSelector(name)}.component.html`
+        );
+
+        (path = path.split("/"))[1] = "components";
+        c.path = path.join("/");
+      });
+
+      this.component = properties.getComponentByName("App");
+      this.component.visited = true;
+
+      // Parse AppComponent
+      await this.parse("app.component.html", new HTMLParser(this.component));
+      this.traversal(this.urlTree);
+      //      console.log(this.text);
+      await this.sleep(10000);
+      console.log("Sleep ended");
+    } catch (e) {
+      console.log(e.message);
+    }
     /*
     // Construct App.js
     this.folder.src.file("App.js", this.createComponent("App.js"));

@@ -14,6 +14,8 @@ import PackageBuilder from "../../utils/Builders/PackageBuilder";
 import Folders from "../../utils/Folders";
 import Modal from "./Modal/Modal";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux";
+import conversionSliceActions from "../../store/conversion-slice";
 
 let folders = new Folders();
 let archive = null;
@@ -29,6 +31,7 @@ export default function Upload() {
   const [dragOver, setDragOver] = useState(false);
   const [clientRect, setClientRect] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const changeHandler = async () => {
     console.log(input.current.files[0]);
@@ -109,7 +112,7 @@ export default function Upload() {
 
   const convertHandler = () => {
     try {
-      console.log(archive);
+      dispatch(conversionSliceActions.start());
       archive.compute();
       navigate('/converter');
     } catch(e) {

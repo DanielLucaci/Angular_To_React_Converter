@@ -12,8 +12,8 @@ const links = [
     path: "/how-to-use",
   },
   {
-    name: "Compatibility",
-    path: "/compatibility",
+    name: "Support",
+    path: "/support",
   },
   {
     name: "FAQ",
@@ -26,20 +26,19 @@ export default function About() {
     <>
       <Background page="general"></Background>
       <div className="about">
-        <ul className="links">
+        <div className="links">
           {links.map((link, index) => {
             return (
-              <li key={`about-link${index}`}>
-                <NavLink
-                  to={`/about${link.path}`}
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  {link.name}
-                </NavLink>
-              </li>
+              <NavLink
+                key={`about-link${index}`}
+                to={`/about${link.path}`}
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                {link.name}
+              </NavLink>
             );
           })}
-        </ul>
+        </div>
         <Outlet />
       </div>
     </>

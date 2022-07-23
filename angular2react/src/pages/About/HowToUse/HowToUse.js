@@ -3,10 +3,10 @@ import "./HowToUse.css";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 
 const steps = [
-  "Upload an archive with all components from your Angular Project.",
+  "Upload an archive with your Angular project. The archive must contain the 'src' folder otherwise it won't work.",
   "Wait until the algorithm finishes the conversion.",
   "An archive with the converted components will automatically download.",
-  "Enjoy and do not forget to leave a rating.",
+  "Enjoy :) If you want to get in touch with us, you can use the 'Contact' page .",
 ];
 
 export default function HowToUse() {
@@ -19,7 +19,9 @@ export default function HowToUse() {
           {steps.map((step, index) => {
             return (
               <li key={`how-to-use${index}`}>
-                <BsFillCheckCircleFill className="checkmark" size={28} />
+                <div className="checkmark-box">
+                  <BsFillCheckCircleFill className="checkmark" size="28" />
+                </div>
                 {step}
               </li>
             );

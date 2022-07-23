@@ -4,9 +4,16 @@ import Component from "../../Classes/Component";
 import Utilities from "../../Utilities";
 
 class AppModuleParser extends Parser { 
+    constructor() { 
+        super();
+        this.componentCount = 0;
+    }
+
     parse(tokenList) { 
         this.init(tokenList);
         this.importStatements();
+
+        return this.componentCount;
     }
 
     importStatements() { 
@@ -49,10 +56,11 @@ class AppModuleParser extends Parser {
         this.check("[");
         let found = false; 
         for(;;) { 
-            // iterate over all other components 
+            // Iterate over every component 
             let newComponent = new Component(Utilities.removeComponent(this.sym));
             if(newComponent.name === 'App') 
                 found = true;
+            this.componentCount++;
             properties.components.push(newComponent);
             this.next();
             if(this.sym === ']')
