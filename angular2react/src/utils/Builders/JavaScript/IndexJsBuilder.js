@@ -1,4 +1,4 @@
-import Builder from "./Builder";
+import Builder from "../Builder";
 
 export default class IndexJSBuilder extends Builder {
   constructor(folders) {

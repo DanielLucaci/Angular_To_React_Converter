@@ -18,7 +18,7 @@ Keywords - true | false | null | undefined |
  Operators -  + | - | * | / | % | ** | ^ | | | & | ~ | = |
               += | -= | *= | /= | %= | **= | ^= | |= | &= | ! | != | !== | == | === | ++ | --
               >> | << | <<= | >>= | >>> | >>>= | >= | <=
-              ?? | ??= | || | ||= | && | &&= | ?. | !. | @
+              ?? | ??= | || | ||= | && | &&= | ?. | !. | @ | #
               ...
 */
 
@@ -119,6 +119,7 @@ export default class DFA {
           case "=":
             return State.State22;
           case "@":
+          case "#":
             return State.State23;
           case "(":
           case ")":

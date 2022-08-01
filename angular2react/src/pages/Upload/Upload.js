@@ -5,29 +5,21 @@ import {
 } from "react-icons/bs";
 import { MdCancel } from "react-icons/md";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { Archive } from "../../utils/Utils";
 import { GrDocumentZip } from "react-icons/gr";
 import Background from "../../components/Layout/Background";
-import IndexHTMLBuilder from "../../utils/Builders/IndexHTMLBuilder";
-import IndexJSBuilder from "../../utils/Builders/IndexJsBuilder";
-import PackageBuilder from "../../utils/Builders/PackageBuilder";
-import Folders from "../../utils/Folders";
 import Modal from "./Modal/Modal";
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from "react-redux";
-import conversionSliceActions from "../../store/conversion-slice";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import conversionSliceActions, {
+  loadArchive,
+} from "../../store/conversion-slice";
 
-let folders = new Folders();
-let archive = null;
-new IndexHTMLBuilder(folders);
-new IndexJSBuilder(folders);
-new PackageBuilder(folders);
-
-export default function Upload() {
+const Upload = () => {
   const input = useRef("");
-  const [uploaded, setUploaded] = useState(false);
-  const [error, setError] = useState(null);
-  const [name, setName] = useState("");
+  const {  isRunning, error, name, uploaded } = useSelector(
+    (state) => state.conversion
+  );
+  const { setError, removeArchive, start } = conversionSliceActions;
   const [dragOver, setDragOver] = useState(false);
   const [clientRect, setClientRect] = useState(null);
   const navigate = useNavigate();
@@ -35,29 +27,21 @@ export default function Upload() {
 
   const changeHandler = async () => {
     console.log(input.current.files[0]);
-    archive = new Archive(folders);
-    await archive.loadArchive(input.current.files[0]);
-    archive.createTree();
-    try {
-      archive.isValid();
-      setName(input.current.files[0].name);
-      setError(false);
-      setUploaded(true);
-    } catch (err) {
-      setError(err.message);
-      setUploaded(false);
-      setName("");
-    }
+    dispatch(
+      loadArchive({
+        name: input.current.files[0].name,
+        content: input.current.files[0],
+      })
+    );
   };
 
   useLayoutEffect(() => {
     setClientRect(document.getElementById("drop_zone").getBoundingClientRect());
   }, []);
 
-  const removeArchive = () => {
-    setError(false);
-    setUploaded(false);
-    setName("");
+  const removeArchiveHandler = () => {
+    console.log("Archive Removed");
+    dispatch(removeArchive());
     input.current.value = "";
   };
 
@@ -69,35 +53,26 @@ export default function Upload() {
   }, []);
 
   const dropHandler = async (e) => {
-    console.log("File(s) dropped");
     e.preventDefault();
     e.stopPropagation();
     setDragOver(false);
     if (e.dataTransfer.items.length !== 1 || uploaded === true) {
-      setError("Please upload a single archive");
+      dispatch(setError("Please upload a single archive"));
       return;
     }
 
     const { type, kind } = e.dataTransfer.items[0];
     if (kind !== "file" && type !== "application/x-zip-compressed") {
-      setError("Please upload a zip-archive");
+      dispatch(setError("Please upload a zip-archive"));
       return;
     }
 
-    const { name } = e.dataTransfer.items[0].getAsFile();
-    archive = new Archive(folders);
-    await archive.loadArchive(e.dataTransfer.items[0].getAsFile());
-    archive.createTree();
-    try {
-      archive.isValid();
-      setName(name);
-      setError(false);
-      setUploaded(true);
-    } catch (err) {
-      setError(err.message);
-      setUploaded(false);
-      setName("");
-    }
+    dispatch(
+      loadArchive({
+        name: e.dataTransfer.items[0].getAsFile().name,
+        content: e.dataTransfer.items[0].getAsFile(),
+      })
+    );
   };
 
   const onModalDragOverHandler = (e) => {
@@ -111,14 +86,9 @@ export default function Upload() {
   };
 
   const convertHandler = () => {
-    try {
-      dispatch(conversionSliceActions.start());
-      archive.compute();
-      navigate('/converter');
-    } catch(e) {
-      console.log(e.message);
-    }
-  }
+    dispatch(start());
+    navigate("/converter");
+  };
 
   return (
     <>
@@ -143,7 +113,6 @@ export default function Upload() {
             ></input>
             <button
               type="button"
-              disabled={uploaded}
               className="button__upload"
               onClick={() => input.current.click()}
             >
@@ -152,20 +121,16 @@ export default function Upload() {
             </button>
             <button
               type="button"
-              disabled={!uploaded}
+              disabled={!uploaded || isRunning}
               className="button__clear"
-              onClick={removeArchive}
+              onClick={removeArchiveHandler}
             >
               <MdCancel size={16} />
               Clear Archive
             </button>
           </div>
           {error && <p className="error">{error}</p>}
-          <div
-            id="drop_zone"
-            onDragOver={dragHandler}
-            className="drop-caption"
-          >
+          <div id="drop_zone" onDragOver={dragHandler} className="drop-caption">
             <div className="drop-caption__border"></div>
             {!uploaded && (
               <p className="drop-caption__text">Drop your archive here</p>
@@ -176,14 +141,20 @@ export default function Upload() {
                 <GrDocumentZip size={45} className="drop-caption__logo" />
                 <button
                   className="drop-caption__remove"
-                  onClick={removeArchive}
+                  onClick={removeArchiveHandler}
+                  disabled={isRunning}
                 >
                   Remove
                 </button>
               </div>
             )}
           </div>
-          <button type="button" disabled={!uploaded} className="convert" onClick={convertHandler}>
+          <button
+            type="button"
+            disabled={!uploaded || isRunning}
+            className="convert"
+            onClick={convertHandler}
+          >
             <BsFillArrowDownCircleFill size={16} />
             Convert
           </button>
@@ -191,4 +162,6 @@ export default function Upload() {
       </div>
     </>
   );
-}
+};
+
+export default Upload;

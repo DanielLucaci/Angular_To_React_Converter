@@ -1,0 +1,65 @@
+.events h1 { 
+    background-color: #acd6eb;
+    padding: 5px;
+    text-align: center;
+    font-weight: normal;
+    font-size: 1.3rem;
+}
+
+.events h1:hover { 
+    opacity: 0.8;
+}
+
+.events h1.active {
+    background-color: #2b2d42;
+    color: white;
+}
+
+.event-list { 
+    position: relative;
+    width: calc(100% - 2px);
+    left: 1px;
+    overflow: hidden;
+    height: calc(100% - 40px);
+}
+
+.events ul {
+    list-style-type: none;
+    width: 100%;
+    position: absolute; 
+    overflow: hidden;
+    transition: transform 0.5s ease-in;
+    background-color: white;
+}
+
+.events ul li { 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px 5px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.events ul li:hover { 
+    background-color: #FFF9CA;
+}
+
+.logo { 
+    display: flex;
+    margin-right: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.event { 
+   display: flex;
+   transform: translateY(-1px);
+}
+
+.event a {
+    text-decoration: none;
+}
+
+.toggle {
+    transform: translateY(-100%);
+}

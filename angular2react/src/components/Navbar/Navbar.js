@@ -19,18 +19,18 @@ const links = [
     to: "/upload",
   },
   {
-    name: "Contact",
-    to: "/contact",
-  },
-  {
     name: "Converter",
     to: "/converter",
+  },
+  {
+    name: "Contact",
+    to: "/contact",
   },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(true);
-  const isRunning = useSelector((state) => state.isRunning);
+  const isRunning = useSelector((state) => state.conversion.isRunning);
 
   const toggleHamburger = () => {
     setOpen((open) => !open);

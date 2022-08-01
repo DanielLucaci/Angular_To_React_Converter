@@ -1,136 +1,96 @@
 import Parser from "../Parser";
-import properties from "../../properties";
 import Component from "../../Classes/Component";
-import Utilities from "../../Utilities";
+import Utilities from "../../Classes/Utilities";
 
-class AppModuleParser extends Parser { 
-    constructor() { 
-        super();
-        this.componentCount = 0;
+class AppModuleParser extends Parser {
+  constructor(project) { 
+    super();
+    this.project = project;
+  }
+
+  parse(tokenList) {
+    this.init(tokenList);
+    this.IMPORT_STATEMENTS();
+  }
+
+  addNewComponent(newComponent) {
+    this.project.components.push(newComponent);
+  }
+
+  IMPORT_STATEMENTS() {
+    try {
+      for (;;) {
+        this.check("import", "{");
+        this.next();
+        this.check("}", "from");
+        this.next();
+        this.check(";");
+      }
+    } catch (e) {
+      this.NG_MODULE();
     }
+  }
 
-    parse(tokenList) { 
-        this.init(tokenList);
-        this.importStatements();
+  NG_MODULE() {
+    this.check("@", "NgModule", "(", "{");
+    this.DECLARATIONS();
+    this.IMPORTS();
+    this.PROVIDERS();
+    this.BOOTSTRAP();
+    this.check("}", ")");
+    this.EXPORT_STATEMENT();
+  }
 
-        return this.componentCount;
+  DECLARATIONS() {
+    this.check("declarations", ":", "[");
+    let found = false;
+
+    // Iterate over every single component
+    for (;;) {
+      // Check for 'AppComponent'
+      if (this.sym === "AppComponent") found = true;
+
+      // Add the new component
+      this.addNewComponent(new Component(Utilities.removeComponent(this.sym)));
+      this.next();
+      if (this.sym === "]") break;
+      else this.check(",");
     }
-
-    importStatements() { 
-        console.log('Import Statements');
-        try { 
-            for(;;) {
-                this.check('import');
-                this.check('{');
-                this.next();
-                this.check("}");
-                this.check("from");
-                this.next();
-                this.check(";");
-            }
-        } catch(e) {
-            this.NGModule();
-        }
+    if (!found) {
+      throw new Error("AppComponent was not found in declarations");
     }
+    this.check("]", ",");
+  }
 
-    NGModule() { 
-        console.log('NgModule');
-        this.check('@');
-        this.check('NgModule');
-        this.check('(');
-        this.check('{');
-        this.declarations();
-        this.imports();
-        this.providers();
-        this.bootstrap();
-        this.check('}');
-        this.check(')');
-        this.exportStatement();
-        console.log("finish");
+  IMPORTS() {
+    this.check("imports", ":", "[");
+    for (;;) {
+      // Iterate over all imports
+      if (this.sym === "]") break;
+      this.next();
+      if (this.sym === ",") this.next();
     }
+    this.check("]", ",");
+  }
 
-    declarations() {
-        console.log('Declarations');
-        this.check('declarations');
-        this.check(':');
-        this.check("[");
-        let found = false; 
-        for(;;) { 
-            // Iterate over every component 
-            let newComponent = new Component(Utilities.removeComponent(this.sym));
-            if(newComponent.name === 'App') 
-                found = true;
-            this.componentCount++;
-            properties.components.push(newComponent);
-            this.next();
-            if(this.sym === ']')
-                break;
-            else 
-                this.check(',');
-        }
-        if(!found) { 
-            throw new Error('AppComponent was not found in declarations');
-        }
-        this.check(']');
-        this.check(',');
-    }
+  PROVIDERS() {
+    this.check("providers", ":", "[");
+    for (;;) {
+      if (this.sym === "]") break;
 
-    imports() {
-        console.log('Imports');
-        const { imports } = properties;
-        this.check('imports');
-        this.check(':');
-        this.check('[');
-        console.log('a');
-        for(;;) {
-            // Iterate over all imports 
-            if(this.sym === ']')
-                break;
-            imports.push(this.sym);
-            this.next();
-            if(this.sym === ',')
-                this.next();
-        }
-        console.log('b');
-        this.check(']');
-        this.check(',');
+      this.next();
+      if (this.sym === ",") this.next();
     }
+    this.check("]", ",");
+  }
 
-    providers() { 
-        const { providers } = properties;
-        console.log('Providers');
-        this.check('providers');
-        this.check(':');
-        this.check('[');
-        for(;;) {
-            if(this.sym === ']') 
-                break;
-            providers.push(this.sym);
-            this.next();
-            if(this.sym === ',')
-                this.next();
-        }
-        this.check(']');
-        this.check(',');
-    }
+  BOOTSTRAP() {
+    this.check("bootstrap", ":", "[", "AppComponent", "]");
+  }
 
-    bootstrap() {
-        console.log('Bootstrap');
-        this.check('bootstrap');
-        this.check(':');
-        this.check('[');
-        this.check('AppComponent');
-        this.check(']');
-    }
-
-    exportStatement() { 
-        console.log('Export Default');
-        this.check('export');
-        this.check('class');
-        this.check('AppModule')
-        this.check('{');
-        this.check('}');
-    }
+  EXPORT_STATEMENT() {
+    this.check("export", "class", "AppModule", "{", "}");
+  }
 }
 
 export default AppModuleParser;

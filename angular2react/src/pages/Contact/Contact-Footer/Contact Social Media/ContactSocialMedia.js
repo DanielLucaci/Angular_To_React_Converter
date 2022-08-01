@@ -18,7 +18,7 @@ export default function ContactSocialMedia() {
     window.addEventListener("resize", resizeWindowHandler);
 
     return () => {
-      window.removeEventListener("resize");
+      window.removeEventListener("resize", resizeWindowHandler);
     };
   }, []);
 

@@ -35,6 +35,10 @@ export default class Utilities {
   static getRelativePath(pathName1, pathName2) {
     let path1 = pathName1.split("/");
     let path2 = pathName2.split("/").reverse();
+    console.log("Path1: ");
+    console.log(path1);
+    console.log("Path2: ");
+    console.log(path2);
 
     let location = path2.shift();
     let found = path1.includes(location);
@@ -46,5 +50,17 @@ export default class Utilities {
     }
 
     return path.concat(path1.slice(path2.length + 1));
+  }
+
+  static capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  static replaceParantheses(string) {
+    return string.replace(/\{\{([^}}]*)\}\}/g, "{$1}");
+  }
+
+  static sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

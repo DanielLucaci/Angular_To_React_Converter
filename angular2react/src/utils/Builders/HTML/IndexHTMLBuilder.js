@@ -1,4 +1,4 @@
-import Builder from "./Builder";
+import Builder from "../Builder";
 import TagBuilder from "./Auxiliary/TagBuilder";
 
 class IndexHTMLBuilder extends Builder {

@@ -2,7 +2,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import { conversionSliceReducer } from "./conversion-slice";
 
 const store = configureStore({
-  reducer: conversionSliceReducer,
+  reducer: {
+    conversion: conversionSliceReducer,
+  },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
@@ -10,3 +12,4 @@ const store = configureStore({
 });
 
 export default store;
+export const dispatch = store.dispatch;

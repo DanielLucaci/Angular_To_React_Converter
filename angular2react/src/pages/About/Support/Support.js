@@ -2,8 +2,10 @@ import styles from "./Support.module.css";
 import { NavLink, Routes, Route, useLocation } from "react-router-dom";
 import AngularSupport from "./Angular/AngularSupport";
 import HTMLSupport from "./HTML/HTMLSupport";
-import AngularIcon from './angular_logo_icon.png';
-import HTMLIcon from './html_logo_icon.png';
+import AngularIcon from "./angular_logo_icon.png";
+import HTMLIcon from "./html_logo_icon.png";
+import JavascriptIcon from "./javascript_logo_icon.png";
+import JavaScriptSupport from "./JavaScript/JavaScriptSupport";
 
 export default function Support() {
   const location = useLocation();
@@ -21,7 +23,7 @@ export default function Support() {
             to="angular"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-              <img src={AngularIcon} alt="angular logo" />
+            <img src={AngularIcon} alt="angular logo" />
           </NavLink>
         </div>
         <div
@@ -36,11 +38,24 @@ export default function Support() {
             <img src={HTMLIcon} alt="html logo" />
           </NavLink>
         </div>
+        <div
+          className={`${styles["nav-item"]} ${
+            path === "javascript" ? styles["active"] : ""
+          }`}
+        >
+          <NavLink
+            to="javascript"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            <img src={JavascriptIcon} alt="javascript logo" />
+          </NavLink>
+        </div>
       </div>
 
       <Routes>
         <Route path="angular" element={<AngularSupport />}></Route>
         <Route path="html" element={<HTMLSupport />}></Route>
+        <Route path="javascript" element={<JavaScriptSupport />}></Route>
       </Routes>
     </>
   );

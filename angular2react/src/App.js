@@ -14,9 +14,11 @@ import { useSelector } from "react-redux";
 import NotFound from "./pages/NotFound/NotFound";
 import HTMLSupport from "./pages/About/Support/HTML/HTMLSupport";
 import AngularSupport from "./pages/About/Support/Angular/AngularSupport";
+import JavaScriptSupport from "./pages/About/Support/JavaScript/JavaScriptSupport";
 
 function App() {
-  const isRunning = useSelector((state) => state.isRunning);
+  const isRunning = useSelector((state) => state.conversion.isRunning);
+  console.log(isRunning);
 
   return (
     <div className="container">
@@ -28,6 +30,7 @@ function App() {
           <Route path="support/*" element={<Support />}>
             <Route path="html" element={<HTMLSupport />}></Route>
             <Route path="angular" element={<AngularSupport />}></Route>
+            <Route path="javascript" element={<JavaScriptSupport />}></Route>
           </Route>
           <Route path="FAQ" element={<FAQ />}></Route>
           <Route path="how-to-use" element={<HowToUse />}></Route>

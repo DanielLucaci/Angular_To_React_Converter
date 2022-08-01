@@ -12,19 +12,20 @@ export default class Parser {
     this.next();
   }
 
-  check(symbolName) {
-    if (this.sym !== symbolName) {
-      throw new Error(
-        `Invalid token ${this.sym} found at line ${this.line}, column ${this.column}. It should have been ${symbolName}`
-      );
-    }
-    this.next();
+  check(...symbols) {
+    symbols.forEach((symbol) => {
+      if (this.sym !== symbol) {
+        throw new Error(
+          `Invalid token ${this.sym} found at line ${this.line}, column ${this.column}. It should have been ${symbol}`
+        );
+      }
+      this.next();
+    });
   }
 
   next() {
     let nextToken = this.tokens.shift();
-    if(nextToken === undefined)
-        return;
+    if (nextToken === undefined) return;
     this.sym = nextToken.name;
     this.line = nextToken.line;
     this.type = nextToken.type;

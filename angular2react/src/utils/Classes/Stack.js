@@ -8,6 +8,10 @@ export default class Stack {
     this.items.push(element);
   }
 
+  get length() { 
+    return this.items.length;
+  }
+
   pop() {
     // return top most element in the stack
     // and removes it from the stack

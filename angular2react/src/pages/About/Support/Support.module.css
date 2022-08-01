@@ -17,11 +17,12 @@
     position: relative;   
     cursor: pointer;
     background-color: #7A86B6;
+    border-right: 1px solid #C8B6E2;
 }
 
 
-.nav-item:first-child {
-    border-right: 2px solid #C8B6E2;  
+.nav-item:last-child {
+    border-right: 0;
 }
 
 .nav-item.active  { 
