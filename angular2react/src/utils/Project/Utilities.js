@@ -35,10 +35,6 @@ export default class Utilities {
   static getRelativePath(pathName1, pathName2) {
     let path1 = pathName1.split("/");
     let path2 = pathName2.split("/").reverse();
-    console.log("Path1: ");
-    console.log(path1);
-    console.log("Path2: ");
-    console.log(path2);
 
     let location = path2.shift();
     let found = path1.includes(location);

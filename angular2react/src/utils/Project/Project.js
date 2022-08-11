@@ -29,7 +29,6 @@ class Project {
   updateComponentsPath() {
     this.components.forEach((c) => {
       const { name } = c;
-      console.log(name);
 
       // Get the coresponding path;
       let { path } = this.archive.getFileInfo(
@@ -82,9 +81,9 @@ class Project {
   sleep(ms) {
     return new Promise((res, rej) => {
       setTimeout(() => {
-        this.status.isRunning ? res('') : rej('');
+        this.status.isRunning ? res("") : rej("");
       }, ms);
-    })
+    });
   }
 
   async parseAppModule() {
@@ -109,7 +108,6 @@ class Project {
       `${compName}.js`,
       new ComponentBuilder(domTree, this).createComponent()
     );
-    console.log("Create Component Finished");
   }
 
   async parseComponent(name) {
@@ -148,7 +146,6 @@ class Project {
   }
 
   async build() {
-
     try {
       await this.parseAppModule();
       this.length = 80 / this.components.length;
@@ -185,6 +182,7 @@ class Project {
       await this.sleep(1000);
     } catch (e) {
       this.status.isRunning = false;
+      console.log("Error " + e.stack);
       throw new Error(e.message);
     }
   }

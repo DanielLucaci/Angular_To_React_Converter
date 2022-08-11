@@ -4,7 +4,6 @@ import { saveAs } from 'file-saver';
 class Folders {
     constructor() { 
         this.root = new JSZip();
-        this.public = this.root.folder('public');
         this.src = this.root.folder('src');
         this.components = this.src.folder('components');
     }

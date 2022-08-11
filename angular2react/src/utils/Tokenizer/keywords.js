@@ -6,7 +6,7 @@ const keywords = [
     'let', 'const', 'var', 'new', 'void', 'instanceof', 'typeof',
     'class', 'function', 'implements', 'extends', 'interface', 'enum', 'this',
     'private', 'protected', 'public', 'return',  'super', 'static',
-    'debugger', 'delete', 'export', 'import', 'package',
+    'debugger', 'delete', 'export', 'import', 'package', 'from',
     'async', 'await', 'in', 'of', 'with', 'yield'
 ]
 

@@ -1,5 +1,5 @@
 import Parser from "../Parser";
-import Component from "../../Project/Component";
+import Component from "../../Component/Component";
 import Utilities from "../../Project/Utilities";
 
 class AppModuleParser extends Parser {

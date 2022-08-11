@@ -22,7 +22,6 @@ const Upload = React.lazy(() => import("./pages/Upload/Upload"));
 
 function App() {
   const isRunning = useSelector((state) => state.conversion.isRunning);
-  console.log(isRunning);
 
   return (
     <div className="container">

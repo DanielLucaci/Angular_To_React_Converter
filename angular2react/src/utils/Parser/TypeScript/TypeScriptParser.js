@@ -1,23 +1,24 @@
 import Parser from "../Parser";
 import Utilities from "../../Project/Utilities";
-import OutputParameter from "../../Component/Parameter/OutputParameter";
-import DefaultParameter from "../../Component/Parameter/DefaultParameter";
-import InputParameter from "../../Component/Parameter/InputParameter";
-import InitializationExpr from "../../Project/Expression/InitializationExpr";
-import Function from "../../Project/Function";
-import IfExpr from "../../Project/Expression/If/IfExpr";
+import OutputAttr from "../../Component/Attribute/OutputParameter";
+import DefaultAttr from "../../Component/Attribute/DefaultAttr";
+import InputAttr from "../../Component/Attribute/InputAttr";
+import InitializationExpr from "../../Component/Expression/InitializationExpr";
+import Function from "../../Component/Function";
+import IfExpr from "../../Component/Expression/If/IfExpr";
 import Stack from "../../Project/Stack";
-import WhileExpr from "../../Project/Expression/While/WhileExpr";
-import IterableFor from "../../Project/Expression/For/IterableForExpr";
-import NormalForExpr from "../../Project/Expression/For/NormalForExpr";
+import WhileExpr from "../../Component/Expression/While/WhileExpr";
+import IterableFor from "../../Component/Expression/For/IterableForExpr";
+import NormalForExpr from "../../Component/Expression/For/NormalForExpr";
+import Parameter from "../../Component/Parameter";
+import AssignmentExpr from "../../Component/Expression/AssignmentExpr";
 
 export default class TypeScriptParser extends Parser {
   constructor(project) {
     super();
     this.component = project.component;
-    this.parameter = null;
-    this.structure = null;
-    this.stack = new Stack();
+    this.attribute = null;
+    this.scope = new Stack();
   }
 
   parse(tokenList) {
@@ -98,13 +99,13 @@ export default class TypeScriptParser extends Parser {
     this.check("{");
 
     // Parameters
-    this.sym === "}" ? this.check("}") : this.PARAMETERS();
+    this.sym === "}" ? this.check("}") : this.ATTRIBUTES();
 
     // Functions
     this.sym === "}" ? this.check("}") : this.FUNCTIONS();
   }
 
-  PARAMETERS() {
+  ATTRIBUTES() {
     if (this.sym === "}") {
       return;
     } else if (this.tokens[0].name === "(") {
@@ -120,117 +121,103 @@ export default class TypeScriptParser extends Parser {
         this.OUTPUT();
         break;
       default:
-        this.PARAMETER();
+        this.ATTRIBUTE();
         break;
     }
-    this.component.parameters.push(this.parameter);
-    this.PARAMETERS();
+    this.ATTRIBUTES();
   }
 
   INPUT() {
     console.log("Input parameter");
-    this.parameter = new InputParameter();
-    this.parameter.type = "Input";
+    let attr = new InputAttr();
+    attr.type = "Input";
     this.check("Input", "(");
     if (this.sym !== ")") {
-      this.parameter.nickname = this.sym.slice(1, -1);
+      attr.nickname = this.sym.slice(1, -1);
       this.next();
       this.check(",", "{", "static", ":", "true", "}");
     }
     this.check(")");
-    this.parameter.name = this.sym;
+    attr.name = this.sym;
     this.next();
     if (this.sym === ":") {
       this.next();
-      this.TYPE();
+      this.TYPE(attr);
     }
-
     this.check(";");
+    this.component.attributes.push(attr);
   }
 
   OUTPUT() {
-    this.parameter = new OutputParameter();
-    this.parameter.type = "Output";
+    let attr = new OutputAttr();
+    attr.type = "Output";
     this.check("Output", "(");
     if (this.sym !== ")") {
-      this.parameter.nickname = this.sym.slice(1, -1);
+      attr.nickname = this.sym.slice(1, -1);
       this.next();
       this.check(",", "{", "static", ":", "true", "}");
     }
     this.check(")");
-    this.parameter.name = this.sym;
+    attr.name = this.sym;
     this.next();
-    this.EVENT_EMITTER();
-  }
-
-  EVENT_EMITTER() {
     this.check("=", "new", "EventEmitter", "<");
-    this.parameter.type = "EventEmitter<";
+    attr.type = "EventEmitter<";
     while (this.sym !== ">") {
-      this.parameter.type += this.sym;
+      attr.type += this.sym;
       this.next();
     }
-    this.parameter.type += ">";
+    attr.type += ">";
     this.check(">", "(", ")", ";");
+    this.component.attributes.push(attr);
   }
 
-  PARAMETER() {
-    console.log("Default Parameter");
-    this.parameter = new DefaultParameter();
-    this.parameter.name = this.sym;
+  ATTRIBUTE() {
+    let attr = new DefaultAttr();
+    attr.name = this.sym;
     this.next();
     if (this.sym === ":") {
       this.next();
-      this.TYPE();
+      this.TYPE(attr);
     }
 
     if (this.sym === "=") {
       this.next();
-      this.INITIAL_VALUE();
+      this.INITIAL_VALUE(attr);
     }
 
     this.check(";");
+    this.component.attributes.push(attr);
   }
 
-  TYPE() {
+  TYPE(attr) {
     let type = "";
     while (this.sym !== "=" && this.sym !== ";") {
       type += this.sym;
       this.next();
     }
-    this.parameter.type = type;
-    switch (this.sym) {
-      case "=":
-        this.check("=");
-        this.INITIAL_VALUE();
-        break;
-      default:
-        break;
-    }
+    attr.type = type;
   }
 
-  INITIAL_VALUE() {
+  INITIAL_VALUE(attr) {
     let initialValue = "";
     while (this.sym !== ";") {
       initialValue += this.sym;
       this.next();
     }
-    this.parameter.initialValue = initialValue;
+    attr.initialValue = initialValue;
   }
 
+  /* Function */
   FUNCTIONS() {
     let func = new Function();
     func.name = this.sym;
+    if (func.name === "constructor" || func.name === "ngOnInit")
+      this.component.hasConstructor = true;
+
     this.next();
     this.check("(");
     while (this.sym !== ")") {
-      let parameter = {
-        name: "",
-        type: "",
-        defaultValue: "",
-      };
-
-      // PARAMETER NAME
+      let parameter = new Parameter();
       parameter.name = this.sym;
       this.next();
 
@@ -273,33 +260,29 @@ export default class TypeScriptParser extends Parser {
       func.parameters.push(parameter);
       if (this.sym === ",") this.check(",");
     }
-    this.stack.push(func);
+    this.scope.push(func);
     this.check(")");
     this.check("{");
     this.STATEMENTS();
 
     // Add the function to the component
-    this.component.functions.push(this.stack.peek());
-    this.stack.pop();
+    this.component.functions.push(this.scope.peek());
+    this.scope.pop();
+    this.check("}");
     if (this.sym !== "}") this.FUNCTIONS();
-    else console.log(this.sym);
   }
 
   STATEMENTS() {
     this.STATEMENT();
 
     if (this.sym === "}") {
-      console.log("Stack length is " + this.stack.length);
-      if (this.stack.length === 1) return;
-      this.stack.pop();
+      if (this.scope.length === 1) return;
+      this.scope.pop();
       this.STATEMENTS();
     }
   }
 
   STATEMENT() {
-    console.log("STATEMENT");
-    this.structure = this.stack.peek();
-    console.log(this.sym);
     switch (this.sym) {
       case "let":
       case "var":
@@ -312,9 +295,35 @@ export default class TypeScriptParser extends Parser {
       case "switch":
         this.CONDITIONAL();
         break;
+      case "this":
+        this.ASSIGNMENT_STMT();
+        break;
       default:
         break;
     }
+  }
+
+  ASSIGNMENT_STMT() {
+    let expr = new AssignmentExpr();
+    if (this.sym === "this") {
+      this.check("this");
+      this.check(".");
+    }
+
+    this.checkType("identifier");
+    expr.assignee = this.sym;
+    this.next();
+    this.check("=");
+
+    while (this.sym !== ";") {
+      if (this.sym === "this") this.check("this", ".");
+
+      if (this.type === "identifier") expr.dependencies.push(this.sym);
+      expr.value += this.sym;
+      this.next();
+    }
+    this.check(";");
+    this.scope.peek().statements.push(expr);
   }
 
   INITIALIZATION() {
@@ -346,7 +355,7 @@ export default class TypeScriptParser extends Parser {
       }
     }
     this.check(";");
-    this.structure.statements.push(expr);
+    this.scope.statements.push(expr);
   }
 
   CONDITIONAL() {
@@ -383,8 +392,7 @@ export default class TypeScriptParser extends Parser {
     }
     this.check(")");
     this.check("{");
-    this.structure.push(expr);
-    this.stack.push(expr);
+    this.scope.push(expr);
   }
 
   WHILE_STATEMENT() {
@@ -403,7 +411,7 @@ export default class TypeScriptParser extends Parser {
     this.check(")");
     this.check("{");
     this.structure.statements.push(expr);
-    this.stack.push(expr);
+    this.scope.push(expr);
   }
 
   FOR_EXPR() {
@@ -466,7 +474,7 @@ export default class TypeScriptParser extends Parser {
     this.check(")");
     this.check("{");
     this.structure.statements.push(expr);
-    this.stack.push(expr);
+    this.scope.push(expr);
   }
 
   ITERABLE_FOR_EXPR() {
@@ -483,6 +491,6 @@ export default class TypeScriptParser extends Parser {
     this.check(")");
     this.check("{");
     this.structure.statements.push(expr);
-    this.stack.push(expr);
+    this.scope.push(expr);
   }
 }

@@ -23,6 +23,14 @@ export default class Parser {
     });
   }
 
+  checkType(type) { 
+    if(this.type !== type) { 
+      throw new Error(
+        `Unknown symbol ${this.sym} found at line ${this.line}, column ${this.column}. Expected an ${this.type}`
+      );
+    }
+  }
+
   next() {
     let nextToken = this.tokens.shift();
     if (nextToken === undefined) return;

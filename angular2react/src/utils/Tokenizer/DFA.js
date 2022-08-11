@@ -400,15 +400,17 @@ export default class DFA {
     }
   
     nextToken(line) {
-      let index = 0,
-        lastIndex = -1;
+      let index = 0, lastIndex = -1;
       let charArr = line.trim().split("");
+      let lastState = this.currentState;
       while (index < charArr.length) {
+        lastState = this.currentState;
         this.setState(this.map.get(this.currentState)(charArr[index++]));
         if (this.acceptedStates.includes(this.currentState)) {
           lastIndex = index;
         } else if (this.currentState === State.State_ERROR) {
           if (lastIndex !== -1) {
+            this.currentState = lastState;
             return line.substr(0, lastIndex);
           }
           return null;

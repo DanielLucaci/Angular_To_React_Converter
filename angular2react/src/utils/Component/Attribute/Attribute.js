@@ -1,10 +1,9 @@
-class Parameter { 
+class Attribute { 
     constructor() {
         this.name = '';
         this.type = '';
         this.initialValue = '';
-        this.modifier = '';
     }
 }
 
-export default  Parameter;
+export default Attribute;
