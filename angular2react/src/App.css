@@ -5,3 +5,9 @@
   margin: 0 auto;
 }
 
+.centered { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

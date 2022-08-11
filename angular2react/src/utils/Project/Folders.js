@@ -11,7 +11,7 @@ class Folders {
 
     createArchive() { 
         this.root.generateAsync({type: 'blob'}).then(function(blob) {
-            saveAs(blob, 'zip');
+            saveAs(blob, 'converted-app');
         })
     }
 }

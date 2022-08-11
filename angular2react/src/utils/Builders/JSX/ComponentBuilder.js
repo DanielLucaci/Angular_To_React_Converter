@@ -1,7 +1,7 @@
-import Utilities from "../../Classes/Utilities";
-import DefaultParameter from "../../Classes/Parameter/DefaultParameter";
-import InputParameter from "../../Classes/Parameter/InputParameter";
-import OutputParameter from "../../Classes/Parameter/OutputParameter";
+import Utilities from "../../Project/Utilities";
+import DefaultParameter from "../../Component/Parameter/DefaultParameter";
+import InputParameter from "../../Component/Parameter/InputParameter";
+import OutputParameter from "../../Component/Parameter/OutputParameter";
 import DOMBuilder from "../HTML/DOMBuilder";
 
 class ComponentBuilder {

@@ -59,8 +59,4 @@ export default class Utilities {
   static replaceParantheses(string) {
     return string.replace(/\{\{([^}}]*)\}\}/g, "{$1}");
   }
-
-  static sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
 }

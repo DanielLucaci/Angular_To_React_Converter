@@ -25,13 +25,13 @@ export class Archive {
     return index === -1 ? false : true;
   }
 
-  getFileName(file) {
-    return file.name.split("/").slice(-1);
-  }
+  // getFileName(file) {
+  //   return file.name.split("/").slice(-1);
+  // }
 
-  getFileParent(file) {
-    return file.name.split("/").slice(-2, -1) || "root";
-  }
+  // getFileParent(file) {
+  //   return file.name.split("/").slice(-2, -1) || "root";
+  // }
 
   getFile(fileName) {
     if (this.hasFile(fileName) === false) {
@@ -44,22 +44,22 @@ export class Archive {
     return file;
   }
 
-  getFolder(folderName) {
-    if (this.hasFolder(folderName) === false) {
-      throw new Error("Folder couldn't be found");
-    }
-    const folder = Object.entries(this.archive.files).find((f) => {
-      const { dir, name } = f[1];
-      return name.split("/").splice(-1)[0] === folderName && dir === true;
-    })[1];
-    return folder;
-  }
+  // getFolder(folderName) {
+  //   if (this.hasFolder(folderName) === false) {
+  //     throw new Error("Folder couldn't be found");
+  //   }
+  //   const folder = Object.entries(this.archive.files).find((f) => {
+  //     const { dir, name } = f[1];
+  //     return name.split("/").splice(-1)[0] === folderName && dir === true;
+  //   })[1];
+  //   return folder;
+  // }
 
-  getFilesInFolder(folderName, type = null) {
-    if (this.hasFolder(folderName) === false) {
-      throw new Error("Couldn't find folder");
-    }
-  }
+  // getFilesInFolder(folderName, type = null) {
+  //   if (this.hasFolder(folderName) === false) {
+  //     throw new Error("Couldn't find folder");
+  //   }
+  // }
 
   getFileInfo(fileName) {
     let file = this.getFile(fileName);

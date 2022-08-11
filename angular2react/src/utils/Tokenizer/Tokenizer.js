@@ -5,7 +5,7 @@ import DFA from "./DFA";
 
 export class Tokenizer {
   constructor() {
-    this.tokenizer = new DFA();
+    this.dfa = new DFA();
   }
 
   getTokenList(text) {
@@ -22,7 +22,7 @@ export class Tokenizer {
     let tokenList = [];
 
     while (row !== "") {
-      let token = this.tokenizer.nextToken(row);
+      let token = this.dfa.nextToken(row);
       if (token === "") {
         console.log("Found null token");
       }
@@ -37,7 +37,7 @@ export class Tokenizer {
         props.type = "keyword";
       } else {
         for (let type of tokenTypes) {
-          if (type.states.includes(this.tokenizer.currentState)) {
+          if (type.states.includes(this.dfa.currentState)) {
             props.type = type.name;
             break;
           }
@@ -47,7 +47,7 @@ export class Tokenizer {
       const newToken = new Token(props);
 
       // Reset DFA
-      this.tokenizer.reset();
+      this.dfa.reset();
 
       // Delete token from row
       row = row.substring(token.length, row.length).trimStart();

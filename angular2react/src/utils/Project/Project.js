@@ -2,8 +2,6 @@ import AppModuleParser from "../Parser/AppModule/AppModuleParser";
 import HTMLParser from "../Parser/HTML/HTMLParser";
 import Utilities from "./Utilities";
 import TypeScriptParser from "../Parser/TypeScript/TypeScriptParser";
-import IndexHTMLBuilder from "../Builders/HTML/IndexHTMLBuilder";
-import IndexJSBuilder from "../Builders/JavaScript/IndexJsBuilder";
 import { Tokenizer } from "../Tokenizer/Tokenizer";
 import ComponentBuilder from "../Builders/JSX/ComponentBuilder";
 
@@ -47,16 +45,20 @@ class Project {
     });
   }
 
-  async addGlobalStyle() {
+  updateStatus(message, percentage) {
     this.status = {
       ...this.status,
-      message: "Adding global styles",
-      percentage: 10,
+      message,
+      percentage,
     };
+  }
+
+  async addGlobalStyle() {
+    this.updateStatus("Adding global styles", 6);
     const file = this.archive.getFile("styles.css");
     if (file !== null)
       this.folders.src.file("index.css", await file.async("string"));
-    await Utilities.sleep(2000);
+    await this.sleep(2000);
   }
 
   getToLocation() {
@@ -77,15 +79,19 @@ class Project {
     });
   }
 
+  sleep(ms) {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        this.status.isRunning ? res('') : rej('');
+      }, ms);
+    })
+  }
+
   async parseAppModule() {
     // Parse app.module.ts first
-    this.status = {
-      ...this.status,
-      message: "Parsing 'app.module.ts'",
-      percentage: 5,
-    };
+    this.updateStatus("Parsing 'app.module.ts'", 3);
+    await this.sleep(1000);
     await this.parse("app.module.ts", new AppModuleParser(this));
-    await Utilities.sleep(2000);
   }
 
   async addCssFile(location, name) {
@@ -110,61 +116,42 @@ class Project {
     // TypeScript File
     let newPercentage = 10 + this.index * this.length;
     let fileName = `${name}.component.ts`;
-    this.status = {
-      ...this.status,
-      message: `Parsing ${fileName}`,
-      percentage: newPercentage,
-    };
-    console.log(newPercentage);
-
-    await Utilities.sleep(2000);
+    this.updateStatus(`Parsing ${fileName}`, newPercentage);
+    await this.sleep(1000);
     await this.parse(`${fileName}`, new TypeScriptParser(this));
 
     // HTML File
     newPercentage = Math.floor(newPercentage + this.length / 4);
     fileName = `${name}.component.html`;
-    await Utilities.sleep(2000);
+    this.updateStatus(`Parsing ${fileName}`, newPercentage);
+    await this.sleep(1000);
     let domTree = await this.parse(`${fileName}`, new HTMLParser(this));
-
-    this.status = {
-      ...this.status,
-      message: `Parsing ${fileName}`,
-      percentage: newPercentage,
-    };
-    console.log(newPercentage);
 
     // Create Component
     newPercentage = Math.floor(newPercentage + this.length / 4);
-    this.status = {
-      ...this.status,
-      message: `Creating ${this.component.name} component`,
-      percentage: newPercentage,
-    };
-    console.log(newPercentage);
+    this.updateStatus(
+      `Creating ${this.component.name} component`,
+      newPercentage
+    );
     let location = this.getToLocation();
-    await Utilities.sleep(2000);
+    await this.sleep(1000);
     await this.createComponent(location, domTree);
 
     // Add the css file
     newPercentage = Math.floor(newPercentage + this.length / 4);
-    this.status = {
-      ...this.status,
-      message: `Adding css file for ${fileName}`,
-      percentage: newPercentage,
-    };
-    console.log(newPercentage);
-    await Utilities.sleep(2000);
+    this.updateStatus(
+      `Adding styling for ${this.component.name}`,
+      newPercentage
+    );
+    await this.sleep(1000);
     await this.addCssFile(location, name);
   }
 
   async build() {
-    new IndexHTMLBuilder(this.folders);
-    new IndexJSBuilder(this.folders);
 
     try {
       await this.parseAppModule();
       this.length = 80 / this.components.length;
-      console.log("Length is " + this.length);
       this.updateComponentsPath();
 
       await this.addGlobalStyle();
@@ -188,12 +175,15 @@ class Project {
         this.index++;
       }
 
+      this.updateStatus("Creating archive", 90);
+      await this.sleep(1000);
       if (this.status.isRunning) {
-        this.status.percentage = 100;
         this.folders.createArchive();
       }
+
+      this.updateStatus("Finished", 100);
+      await this.sleep(1000);
     } catch (e) {
-      console.log(e.stack);
       this.status.isRunning = false;
       throw new Error(e.message);
     }
@@ -208,7 +198,8 @@ class Project {
 
   cancel() {
     this.status = {
-      ...this.status,
+      percentage: 0,
+      message: "",
       isRunning: false,
     };
   }

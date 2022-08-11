@@ -1,4 +1,4 @@
-import Utilities from "../../Classes/Utilities";
+import Utilities from "../../Project/Utilities";
 import { Tokenizer } from "../../Tokenizer/Tokenizer";
 
 class DOMBuilder {
@@ -155,7 +155,7 @@ class DOMBuilder {
     for (let i = 0; i < count; i++) this.dom += "  ";
   }
 
-  removeLastRow(count) {
+  removeLastRow() {
     this.dom = this.dom.split("\n").slice(0, -1).join("\n") + "\n";
   }
 

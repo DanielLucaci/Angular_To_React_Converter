@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Archive } from "../utils/Classes/Archive";
-import Folders from "../utils/Classes/Folders";
-import Project from "../utils/Classes/Project";
+import { Archive } from "../utils/Project/Archive";
+import Folders from "../utils/Project/Folders";
+import Project from "../utils/Project/Project";
 
 const conversionInitialState = {
   folders: new Folders(),
@@ -52,8 +52,9 @@ const conversionSlice = createSlice({
     },
     cancel(state) {
       state.project.cancel();
-      state.project = new Project(state.archive, state.folders);
       state.isRunning = false;
+      state.folders = new Folders();
+      state.project = new Project(state.archive, state.folders);
     },
   },
   extraReducers: (builder) => {

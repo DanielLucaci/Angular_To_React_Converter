@@ -1,15 +1,15 @@
 import Parser from "../Parser";
-import Utilities from "../../Classes/Utilities";
-import OutputParameter from "../../Classes/Parameter/OutputParameter";
-import DefaultParameter from "../../Classes/Parameter/DefaultParameter";
-import InputParameter from "../../Classes/Parameter/InputParameter";
-import InitializationExpr from "../../Classes/Expression/InitializationExpr";
-import Function from "../../Classes/Function";
-import IfExpr from "../../Classes/Expression/If/IfExpr";
-import Stack from "../../Classes/Stack";
-import WhileExpr from "../../Classes/Expression/While/WhileExpr";
-import IterableFor from "../../Classes/Expression/For/IterableForExpr";
-import NormalForExpr from "../../Classes/Expression/For/NormalForExpr";
+import Utilities from "../../Project/Utilities";
+import OutputParameter from "../../Component/Parameter/OutputParameter";
+import DefaultParameter from "../../Component/Parameter/DefaultParameter";
+import InputParameter from "../../Component/Parameter/InputParameter";
+import InitializationExpr from "../../Project/Expression/InitializationExpr";
+import Function from "../../Project/Function";
+import IfExpr from "../../Project/Expression/If/IfExpr";
+import Stack from "../../Project/Stack";
+import WhileExpr from "../../Project/Expression/While/WhileExpr";
+import IterableFor from "../../Project/Expression/For/IterableForExpr";
+import NormalForExpr from "../../Project/Expression/For/NormalForExpr";
 
 export default class TypeScriptParser extends Parser {
   constructor(project) {

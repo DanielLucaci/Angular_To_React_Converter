@@ -6,8 +6,8 @@ export default class HTMLElement {
     this.styles = [];
     this.classes = [];
     this.attributes = [];
-    this.id = new HTMLId();
     this.text = "";
+    this.id = new HTMLId();
     this.depth = depth;
     this.children = [];
     this.iteration = null;

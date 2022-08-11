@@ -37,7 +37,7 @@ export default function Converter() {
   useEffect(() => {
     if (error !== "" || isRunning === false) {
       navigate("/upload");
-      initial = false;
+      initial = true;
     }
   }, [error, isRunning, navigate]);
 
@@ -45,6 +45,8 @@ export default function Converter() {
     let timeout = null;
     if (status.percentage === 100) {
       timeout = setTimeout(() => {
+        initial = true;
+        dispatch(conversionSliceActions.cancel());
         navigate("/upload");
       }, 500);
     }
@@ -52,11 +54,11 @@ export default function Converter() {
     return () => {
       if (timeout !== null) clearTimeout(timeout);
     };
-  }, [status.percentage, navigate]);
+  }, [status.percentage, dispatch, navigate]);
 
   const cancelConversionHandler = () => {
-    console.log("Cancelled");
     dispatch(conversionSliceActions.cancel());
+    initial = true;
     navigate("/upload");
   };
 
