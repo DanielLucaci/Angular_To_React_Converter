@@ -4,6 +4,7 @@ class SwitchExpr extends ConditionalExpr {
   constructor() {
     super("switch");
     this.branches = [];
+    this.default = [];
   }
 }
 

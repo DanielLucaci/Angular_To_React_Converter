@@ -1,10 +1,8 @@
-import Expression from "./Expression";
+import DeclarationExpr from "./DeclarationExpr";
 
-class InitializationExpr extends Expression {
+class InitializationExpr extends DeclarationExpr {
   constructor() {
     super("initialization");
-    this.scope = "";
-    this.variable = "";
     this.value = "";
   }
 }

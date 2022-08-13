@@ -6,6 +6,7 @@ export default class Component {
     this.subComponents = [];
     this.attributes = [];
     this.functions = [];
+    this.ngModel = [];
     this.visited = false;
     this.hasConstructor = false;
     this.hasNgContent = false;

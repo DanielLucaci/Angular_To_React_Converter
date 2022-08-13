@@ -100,6 +100,31 @@ class DOMBuilder {
     );
   }
 
+  addTwoWayBinding() {
+    let ngModel = this.tree.ngModel;
+    if (ngModel !== null) {
+      ngModel = ngModel.slice(1, -1);
+      this.addText(" ", "value", "=", "{", ngModel, "}");
+      this.addText(
+        " ",
+        "onChange",
+        "=",
+        "{",
+        "change",
+        Utilities.capitalize(ngModel),
+        "Handler",
+        "}"
+      );
+    }
+  }
+
+  addEvents() {
+    const events = this.tree.events;
+    events.forEach((ev) => {
+      this.addText(" ", ev.name, "={", ev.value, "}");
+    })
+  }
+
   addNewLine() {
     if (this.tree.children.length !== 0 || this.tree.selfEnclosed) {
       this.addText("\n");
@@ -129,6 +154,8 @@ class DOMBuilder {
           this.tagBegin.bind(bindObj)();
           this.addClasses.bind(bindObj)();
           this.addId.bind(bindObj)();
+          this.addTwoWayBinding.bind(bindObj)();
+          this.addEvents.bind(bindObj)();
           this.addDefaultAttributes.bind(bindObj)();
           if (tree.selfEnclosed) this.addText(" /");
           this.addText(">");

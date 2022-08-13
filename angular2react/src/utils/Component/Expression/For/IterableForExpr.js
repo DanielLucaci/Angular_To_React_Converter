@@ -4,6 +4,7 @@ class IterableFor extends ForExpr {
     constructor() { 
         super();
         this.iterable = '';
+        this.word = '';
     }
 }
 

@@ -26,7 +26,7 @@ class ComponentBuilder {
       );
       if (relativePath[0] !== "..") relativePath.unshift(".");
       this.addText("import", " ", subComponentName, " ", "from", " ");
-      this.addText(`${relativePath.join("/")}/${subComponentName}'`);
+      this.addText(`'${relativePath.join("/")}/${subComponentName}'`);
       this.addText("\n");
     });
   }
@@ -160,15 +160,38 @@ class ComponentBuilder {
   }
 
   addUseEffect(stmt) {
-    this.addText("\n", "useEffect", "(", "(", ")", " ",  "=>", " ", "{", "\n", "\t");
+    this.addText(
+      "\n",
+      "useEffect",
+      "(",
+      "(",
+      ")",
+      " ",
+      "=>",
+      " ",
+      "{",
+      "\n",
+      "\t"
+    );
     this.addText("set", Utilities.capitalize(stmt.assignee));
     this.addText("(", stmt.value, ")", ";", "\n", "}", ",", " ", "[");
-    stmt.dependencies.forEach((dependency) => this.addText(dependency, ",", " "));
+    stmt.dependencies.forEach((dependency) =>
+      this.addText(dependency, ",", " ")
+    );
     if (stmt.dependencies.length > 0) this.text = this.text.slice(0, -2);
     this.addText("]", ")", "\n", "\n");
   }
 
   addFunctions() {}
+
+  addTwoWayBinding() {
+    this.component.ngModel.forEach((value) => {
+      value = Utilities.capitalize(value.slice(1, -1));
+      this.addText("\nconst change", value, "Handler = (e) => {\n");
+      this.addText("\tset", value, "(e.target.value);\n");
+      this.addText("}\n");
+    });
+  }
 
   createComponent() {
     this.addImports();
@@ -178,6 +201,7 @@ class ComponentBuilder {
     this.addAttributes();
     this.addConstructor();
     //  this.addNgOnInit();
+    this.addTwoWayBinding();
     this.addFunctions();
     this.addJSX();
     this.addExport();

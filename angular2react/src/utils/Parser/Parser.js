@@ -26,7 +26,7 @@ export default class Parser {
   checkType(type) { 
     if(this.type !== type) { 
       throw new Error(
-        `Unknown symbol ${this.sym} found at line ${this.line}, column ${this.column}. Expected an ${this.type}`
+        `Unknown symbol ${this.sym} found at line ${this.line}, column ${this.column}. Expected an ${type}`
       );
     }
   }

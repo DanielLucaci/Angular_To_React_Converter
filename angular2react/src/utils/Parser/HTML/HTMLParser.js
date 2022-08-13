@@ -6,6 +6,8 @@ import HTMLElement from "./utils/HTMLElement";
 import HTMLClass from "./utils/HTMLClass";
 import HTMLStyle from "./utils/HTMLStyle";
 import Token from "../../Tokenizer/Token";
+import defaultEvents from "./utils/defaultEvents";
+import { Tokenizer } from "../../Tokenizer/Tokenizer";
 
 export default class HTMLParser extends Parser {
   constructor(project) {
@@ -274,7 +276,8 @@ export default class HTMLParser extends Parser {
           this.STYLE();
           break;
         case "[": // Property binding or two-way binding
-          this.PROPERTY_BINDING();
+          this.check("[");
+          this.sym === "(" ? this.TWO_WAY_BINDING() : this.PROPERTY_BINDING();
           break;
         case "(": // Event Binding
           this.EVENT_BINDING();
@@ -375,6 +378,14 @@ export default class HTMLParser extends Parser {
     this.next();
   }
 
+  TWO_WAY_BINDING() {
+    this.check("(", "ngModel", ")", "]", "=");
+    this.checkType("string");
+    this.element.ngModel = this.sym;
+    this.component.ngModel.push(this.sym);
+    this.next();
+  }
+
   PROPERTY_BINDING() {
     switch (this.sym) {
       case "ngStyle":
@@ -462,9 +473,30 @@ export default class HTMLParser extends Parser {
     this.next();
   }
 
-  EVENT_BINDING() {}
+  EVENT_BINDING() {
+    this.check("(");
+    let eventName = defaultEvents[this.sym];
+    if (!eventName)
+      throw new Error(
+        `Unknown event ${this.sym} at line ${this.line}, column ${this.column}`
+      );
 
-  NORMAL_ATTR() {}
+    this.next();
+    let event = {
+      name: eventName,
+      value: "",
+    };
+
+    this.check(")", "=");
+    this.checkType("string");
+    this.tokens.unshift(...new Tokenizer().getTokenList(this.sym.slice(1, -1)));
+    this.next();
+    this.checkType("identifier");
+    event.value = this.sym;
+    this.next();
+    this.check("(", ")");
+    this.element.events.push(event);
+  }
 
   NG_IF() {
     this.element.condition = {};
