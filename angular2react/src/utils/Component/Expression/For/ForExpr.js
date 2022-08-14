@@ -1,8 +1,8 @@
 import ConditionalExpr from "../ConditionalExpr";
 
 class ForExpr extends ConditionalExpr { 
-    constructor() { 
-        super('for');
+    constructor(type, depth) { 
+        super(type, depth);
         this.iterator = '';
     }
 }

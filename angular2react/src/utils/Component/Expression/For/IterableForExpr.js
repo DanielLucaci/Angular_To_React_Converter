@@ -1,8 +1,8 @@
 import ForExpr from "./ForExpr";
 
 class IterableFor extends ForExpr { 
-    constructor() { 
-        super();
+    constructor(depth) { 
+        super("iterable for", depth);
         this.iterable = '';
         this.word = '';
     }

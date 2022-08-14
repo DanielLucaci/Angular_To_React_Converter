@@ -1,8 +1,8 @@
 import Expression from "./Expression";
 
 class DeclarationExpr extends Expression {
-  constructor() {
-    super("declaration");
+  constructor(depth) {
+    super("declaration", depth);
     this.scope = "";
     this.variable = "";
     this.datatype = "";

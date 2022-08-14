@@ -1,8 +1,8 @@
 import ConditionalExpr from "../ConditionalExpr";
 
 class WhileExpr extends ConditionalExpr {
-  constructor() {
-    super("while");
+  constructor(depth) {
+    super("while", depth);
   }
 }
 

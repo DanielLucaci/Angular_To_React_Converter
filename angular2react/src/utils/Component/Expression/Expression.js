@@ -1,6 +1,7 @@
 class Expression { 
-    constructor(type) {
+    constructor(type, depth) {
         this.type = type;
+        this.depth = depth;
     }
 }
 

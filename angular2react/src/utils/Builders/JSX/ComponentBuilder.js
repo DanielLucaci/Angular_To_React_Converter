@@ -139,6 +139,7 @@ class ComponentBuilder {
 
   addText(...symbols) {
     symbols.forEach((symbol) => (this.text += symbol));
+    return this;
   }
 
   addNgOnInit() {
@@ -182,7 +183,175 @@ class ComponentBuilder {
     this.addText("]", ")", "\n", "\n");
   }
 
-  addFunctions() {}
+  addFunctions() {
+    this.component.functions.forEach((func) => this.addFunction(func));
+  }
+
+  addFunction(func) {
+    this.addText("\nconst ", func.name, " = (");
+    for (let param of func.parameters) {
+      this.addText(param.name);
+      if (param.defaultValue !== "") this.addText(" = ", param.defaultValue);
+      this.addText(", ");
+    }
+    if (func.parameters.length > 0) this.text = this.text.slice(0, -2);
+    this.addText(") => {");
+
+    if (func.statements.length > 0)
+      func.statements.forEach((stmt) => this.addStatement(stmt));
+    this.addText("\n}\n");
+  }
+
+  addIfExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.count * 2)
+      .addText("if (", expr.condition, ") {\n");
+  }
+
+  addElseIfExpr(expr) {
+    this.addText(" else if (", expr.condition, ") {");
+  }
+
+  addElseExpr() {
+    this.addText(" else {");
+  }
+
+  addForExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("for (let ", expr.iterator, " = ", expr.initialValue, "; ")
+      .addText(expr.stopCondition, "; ")
+      .addText(expr.iterator, expr.increment, ") {");
+  }
+
+  addIterableForExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("for (let ", expr.iterator)
+      .addText(" ", expr.word, " ")
+      .addText(expr.iterable, ") {");
+  }
+
+  addSwitchExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("switch (", expr.condition, ") {");
+  }
+
+  addCaseExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("case ", expr.value, ":");
+  }
+
+  addDefaultExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("default:");
+  }
+
+  addWhileExpr(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText("while (", expr.condition, ") {");
+  }
+
+  addFunctionCallStmt(stmt) {
+    this.addText("\n")
+      .addSpaces(stmt.depth * 2)
+      .addText(stmt.identifier, "(");
+    for (let param of stmt.parameters) {
+      this.addText(param, ", ");
+    }
+    this.text = this.text.slice(0, -2);
+    this.addText(");");
+  }
+
+  addInitializationStmt(stmt) {
+    this.addText("\n")
+      .addSpaces(stmt.depth * 2)
+      .addText(stmt.scope, " ", stmt.variable)
+      .addText(" = ", stmt.value, ";");
+  }
+
+  addKeywordStmt(expr) {
+    this.addText("\n")
+      .addSpaces(expr.depth * 2)
+      .addText(expr.keyword, ";");
+  }
+
+  addStatement(expr) {
+    console.log(expr);
+    switch (expr.type) {
+      case "if":
+        this.addIfExpr(expr);
+        break;
+      case "else if":
+        this.addElseIfExpr(expr);
+        break;
+      case "else":
+        this.addElseExpr();
+        break;
+      case "for":
+        this.addForExpr(expr);
+        break;
+      case "iterable for":
+        this.addIterableForExpr(expr);
+        break;
+      case "switch":
+        this.addSwitchExpr(expr);
+        break;
+      case "case":
+        this.addCaseExpr(expr);
+        break;
+      case "default":
+        this.addDefaultExpr(expr);
+        break;
+      case "while":
+        this.addWhileExpr(expr);
+        break;
+      case "function call":
+        this.addFunctionCallStmt(expr);
+        break;
+      case "declaration":
+        this.addDeclarationStmt(expr);
+        break;
+      case "initialization":
+        this.addInitializationStmt(expr);
+        break;
+      case "assignment":
+        this.addAssignmentStmt(expr);
+        break;
+      case "break":
+      case "continue":
+        this.addKeywordStmt(expr);
+        break;
+      default:
+        break;
+    }
+    if (expr.statements)
+      expr.statements.forEach((stmt) => this.addStatement(stmt));
+    switch (expr.type) {
+      case "if":
+      case "else if":
+      case "else":
+      case "while":
+      case "for":
+      case "iterable for":
+      case "switch":
+        this.addText("\n")
+          .addSpaces(expr.depth * 2)
+          .addText("}");
+        break;
+      default:
+        break;
+    }
+  }
+
+  addSpaces(count) {
+    for (let i = 0; i < count; i++) this.addText(" ");
+    return this;
+  }
 
   addTwoWayBinding() {
     this.component.ngModel.forEach((value) => {

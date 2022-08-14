@@ -1,8 +1,8 @@
 import ConditionalExpr from "../ConditionalExpr";
 
 class ElseIfExpr extends ConditionalExpr { 
-    constructor() {
-        super('else if');
+    constructor(depth) {
+        super('else if', depth);
         this.condition = '';
     }
 }

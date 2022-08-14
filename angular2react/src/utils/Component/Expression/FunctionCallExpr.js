@@ -1,8 +1,8 @@
 import Expression from "./Expression";
 
 class FunctionCallExpr extends Expression {
-    constructor() {
-        super('function call');
+    constructor(depth) {
+        super('function call', depth);
         this.parameters = [];
         this.identifier = "";
     }

@@ -1,8 +1,8 @@
 import Expression from "../Expression";
 
 class CaseExpr extends Expression {
-    constructor() {
-        super("case");
+    constructor(depth) {
+        super("case", depth);
         this.value = "";
         this.statements = [];
     }

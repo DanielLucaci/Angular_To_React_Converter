@@ -1,8 +1,9 @@
 import DeclarationExpr from "./DeclarationExpr";
 
 class InitializationExpr extends DeclarationExpr {
-  constructor() {
-    super("initialization");
+  constructor(depth) {
+    super(depth);
+    this.type = "initialization";
     this.value = "";
   }
 }

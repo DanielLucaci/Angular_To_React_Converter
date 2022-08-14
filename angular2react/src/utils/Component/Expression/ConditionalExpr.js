@@ -1,8 +1,8 @@
 import Expression from "./Expression";
 
 class ConditionalExpr extends Expression {
-  constructor(type) {
-    super(type);
+  constructor(type, depth) {
+    super(type, depth);
     this.condition = "";
     this.statements = [];
   }
