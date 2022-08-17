@@ -9,7 +9,7 @@ let tokenTypes = [
   // Number
   {
     name: "number",
-    states: [State.State30, State.State32],
+    states: [State.State30, State.State32, State.State33],
   },
   // Operator
   {

@@ -89,14 +89,18 @@ class Project {
   async parseAppModule() {
     // Parse app.module.ts first
     this.updateStatus("Parsing 'app.module.ts'", 3);
-    await this.sleep(1000);
+    await this.sleep(100);
     await this.parse("app.module.ts", new AppModuleParser(this));
   }
 
   async addCssFile(location, name) {
     if (this.archive.hasFile(`${name}.component.css`)) {
+      let newName = name
+        .split("-")
+        .map((s) => Utilities.capitalize(s))
+        .join("");
       location.file(
-        `${Utilities.capitalize(name)}.css`,
+        `${newName}.css`,
         await this.archive.getFile(`${name}.component.css`).async("string")
       );
     }

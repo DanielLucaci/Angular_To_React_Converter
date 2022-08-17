@@ -22,6 +22,8 @@ const EventBox = (props) => {
                 <div className={styles.event}>
                   <a
                     href={`https://developer.mozilla.org/en-US/docs/Web/API/Element/${event}_event`}
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     {event}
                   </a>

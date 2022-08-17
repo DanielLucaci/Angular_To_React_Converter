@@ -11,7 +11,7 @@ class DOMBuilder {
       this.addText("{", "\n");
       this.addEmptySpaces(this.tree.depth, 1);
       const { iterator, iterable } = this.tree.iteration;
-      this.addText(iterable, ".map(", iterator, " => ", "{", "\n");
+      this.addText(iterable, ".map((", iterator, ", index) => {\n");
       this.addEmptySpaces(this.tree.depth, 2);
       this.addText("return", " (", "\n");
     }
@@ -22,7 +22,7 @@ class DOMBuilder {
       this.addEmptySpaces(this.tree.depth, 2);
       this.addText(")", "\n");
       this.addEmptySpaces(this.tree.depth, 1);
-      this.addText("}", "\n");
+      this.addText("})}", "\n");
     }
   }
 
@@ -95,9 +95,11 @@ class DOMBuilder {
   }
 
   addDefaultAttributes() {
-    this.tree.attributes.forEach((attr) =>
+    this.tree.attributes.forEach((attr) => {
+      if(attr.name === "for") 
+        attr.name = "htmlFor";
       this.addText(" ", attr.name, "=", attr.value, " ")
-    );
+    });
   }
 
   addTwoWayBinding() {

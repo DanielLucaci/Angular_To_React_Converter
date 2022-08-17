@@ -18,7 +18,7 @@ Keywords - true | false | null | undefined |
  Operators -  + | - | * | / | % | ** | ^ | | | & | ~ | = |
               += | -= | *= | /= | %= | **= | ^= | |= | &= | ! | != | !== | == | === | ++ | --
               >> | << | <<= | >>= | >>> | >>>= | >= | <=
-              ?? | ??= | || | ||= | && | &&= | ?. | !. | @ | #
+              ?? | ??= | || | ||= | && | &&= | ?. | !. | @ | # | $
               ...
 */
 
@@ -70,6 +70,7 @@ export default class DFA {
         State.State27,
         State.State30,
         State.State32,
+        State.State33
       ];
       this.map = new Map();
       this.createMap();
@@ -87,6 +88,10 @@ export default class DFA {
   
         if ("1" <= c && c <= "9") {
           return State.State30;
+        }
+
+        if(c === "0") {
+          return State.State33;
         }
   
         switch (c) {
@@ -120,6 +125,7 @@ export default class DFA {
             return State.State22;
           case "@":
           case "#":
+          case "$":
             return State.State23;
           case "(":
           case ")":
@@ -393,6 +399,14 @@ export default class DFA {
           return State.State_ERROR;
         }
       });
+
+      this.map.set(State.State33, (c) => {
+        if(c === ".") {
+          return State.State31;
+        } else {
+          return State.State_ERROR;
+        }
+      })
     }
   
     reset() {

@@ -1,4 +1,4 @@
-import Expression from "../Expression";
+import Expression from "../../Expression";
 
 class DefaultExpr extends Expression {
     constructor(depth) {

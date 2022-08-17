@@ -11,14 +11,6 @@ const components = [
     name: "Event Emitters",
     link: "https://angular.io/api/core/EventEmitter",
   },
-  {
-    name: "ViewChild",
-    link: "https://angular.io/api/core/ViewChild",
-  },
-  {
-    name: "ViewEncapsulation",
-    link: "https://angular.io/api/core/ViewEncapsulation",
-  },
 ];
 
 const Components = (props) => {

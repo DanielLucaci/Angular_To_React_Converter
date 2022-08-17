@@ -3,6 +3,7 @@ import DefaultAttr from "../../Component/Attribute/DefaultAttr";
 import InputAttr from "../../Component/Attribute/InputAttr";
 import OutputAttr from "../../Component/Attribute/OutputParameter";
 import DOMBuilder from "../HTML/DOMBuilder";
+import { Tokenizer } from "../../Tokenizer/Tokenizer";
 
 class ComponentBuilder {
   constructor(tree, project) {
@@ -25,15 +26,15 @@ class ComponentBuilder {
         componentPath
       );
       if (relativePath[0] !== "..") relativePath.unshift(".");
-      this.addText("import", " ", subComponentName, " ", "from", " ");
-      this.addText(`'${relativePath.join("/")}/${subComponentName}'`);
-      this.addText("\n");
+      this.addText("import", " ", subComponentName, " ", "from", " ").addText(
+        `'${relativePath.join("/")}/${subComponentName}';\n`
+      );
     });
   }
 
   addStyling() {
     if (this.component.styleUrls.length > 0)
-      this.text += `import './${this.component.name}.css'\n`;
+      this.text += `import './${this.component.name}.css';\n`;
   }
 
   addHooks() {
@@ -62,9 +63,9 @@ class ComponentBuilder {
   }
 
   addDefinition() {
-    this.addText("\n", "const", " ", this.component.name, "=", " ", "(");
+    this.addText("\nconst ", this.component.name, " = (");
     this.addProps();
-    this.addText(")", " ", "=>", " ", "{", "\n");
+    this.addText(") => {\n");
   }
 
   addProps() {
@@ -105,36 +106,16 @@ class ComponentBuilder {
       // React Fragment Needed
       tabs = 3;
       reactFragment = true;
-      this.addText("\t", "<", ">", "\n");
+      this.addText("\t<div>\n");
     }
     this.domBuilder.dom.split("\n").forEach((line) => {
       for (let i = 0; i < tabs; i++) this.text += "  ";
       this.text += line + "\n";
     });
     this.text = this.text.slice(0, -tabs - 1);
-    if (reactFragment === true) this.addText(" ", " ", "<", "/", ">", "\n");
+    if (reactFragment === true) this.addText("  </div>\n");
 
     this.addText("  ", ")", ";", "\n", "}", "\n", "\n");
-  }
-
-  addConstructor() {
-    // Get constructor
-    const constructor = this.component.functions.filter(
-      (f) => f.name === "constructor"
-    )[0];
-
-    if (!constructor) return;
-    console.log(constructor);
-
-    constructor.statements.forEach((stmt) => {
-      switch (stmt.type) {
-        case "assignment":
-          this.addUseEffect(stmt);
-          break;
-        default:
-          break;
-      }
-    });
   }
 
   addText(...symbols) {
@@ -142,45 +123,64 @@ class ComponentBuilder {
     return this;
   }
 
+  addConstructor() {
+    const constructor = this.component.functions.filter(
+      (f) => f.name === "constructor"
+    )[0];
+
+    if (!constructor) return;
+
+    this.addUseEffect(constructor);
+    let index = this.component.functions.indexOf(constructor);
+    this.component.functions.splice(index, 1);
+  }
+
   addNgOnInit() {
     const ngOnInit = this.component.functions.filter(
       (f) => f.name === "ngOnInit"
     )[0];
 
-    if (ngOnInit === null) return;
+    if (!ngOnInit) return;
 
-    ngOnInit.statements.forEach((stmt) => {
-      switch (stmt.type) {
-        case "assignment":
-          this.addUseEffect(stmt);
-          break;
-        default:
-          break;
-      }
-    });
+    this.addUseEffect(ngOnInit);
+    let index = this.component.functions.indexOf(ngOnInit);
+    this.component.functions.splice(index, 1);
   }
 
   addUseEffect(stmt) {
-    this.addText(
-      "\n",
-      "useEffect",
-      "(",
-      "(",
-      ")",
-      " ",
-      "=>",
-      " ",
-      "{",
-      "\n",
-      "\t"
-    );
-    this.addText("set", Utilities.capitalize(stmt.assignee));
-    this.addText("(", stmt.value, ")", ";", "\n", "}", ",", " ", "[");
-    stmt.dependencies.forEach((dependency) =>
-      this.addText(dependency, ",", " ")
-    );
-    if (stmt.dependencies.length > 0) this.text = this.text.slice(0, -2);
-    this.addText("]", ")", "\n", "\n");
+    this.addSpaces(stmt.depth).addText("useEffect(() => {");
+    const dependencies = this.extractDependencies(stmt);
+    this.addStatement(stmt);
+    this.addSpaces(stmt.depth).addText("}, [");
+    dependencies.forEach((dep) => this.addText(dep, ",", " "));
+    if (dependencies.length > 0) this.text = this.text.slice(0, -2);
+    this.addText("])\n");
+  }
+
+  extractDependencies(expr) {
+    const dependencies = [];
+    const variables = [];
+    let queue = [];
+    queue.push(expr);
+    while (queue.length > 0) {
+      let stmt = queue.shift();
+      if (stmt.type === "assignment" || stmt.type === "initialization") {
+        if (!variables.includes(stmt.variable)) variables.push(stmt.variable);
+      }
+
+      if (stmt.dependencies) {
+        console.log(stmt.dependencies);
+        stmt.dependencies.forEach((dep) => {
+          if (!variables.includes(dep) && !dependencies.includes(dep)) {
+            dependencies.push(dep);
+          }
+        });
+      }
+
+      if (stmt.statements)
+        stmt.statements.forEach((statement) => queue.push(statement));
+    }
+    return dependencies;
   }
 
   addFunctions() {
@@ -203,9 +203,7 @@ class ComponentBuilder {
   }
 
   addIfExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.count * 2)
-      .addText("if (", expr.condition, ") {\n");
+    this.addSpaces(expr.depth).addText("if (", expr.condition, ") {");
   }
 
   addElseIfExpr(expr) {
@@ -217,49 +215,37 @@ class ComponentBuilder {
   }
 
   addForExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
+    this.addSpaces(expr.depth)
       .addText("for (let ", expr.iterator, " = ", expr.initialValue, "; ")
       .addText(expr.stopCondition, "; ")
-      .addText(expr.iterator, expr.increment, ") {");
+      .addText(expr.increment, ") {");
   }
 
   addIterableForExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
+    this.addSpaces(expr.depth)
       .addText("for (let ", expr.iterator)
       .addText(" ", expr.word, " ")
       .addText(expr.iterable, ") {");
   }
 
   addSwitchExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
-      .addText("switch (", expr.condition, ") {");
+    this.addSpaces(expr.depth).addText("switch (", expr.condition, ") {");
   }
 
   addCaseExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
-      .addText("case ", expr.value, ":");
+    this.addSpaces(expr.depth).addText("case ", expr.value, ":");
   }
 
   addDefaultExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
-      .addText("default:");
+    this.addSpaces(expr.depth).addText("default:");
   }
 
   addWhileExpr(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
-      .addText("while (", expr.condition, ") {");
+    this.addSpaces(expr.depth).addText("while (", expr.condition, ") {");
   }
 
   addFunctionCallStmt(stmt) {
-    this.addText("\n")
-      .addSpaces(stmt.depth * 2)
-      .addText(stmt.identifier, "(");
+    this.addSpaces(stmt.depth).addText(stmt.variable, "(");
     for (let param of stmt.parameters) {
       this.addText(param, ", ");
     }
@@ -268,20 +254,49 @@ class ComponentBuilder {
   }
 
   addInitializationStmt(stmt) {
-    this.addText("\n")
-      .addSpaces(stmt.depth * 2)
+    this.addSpaces(stmt.depth)
       .addText(stmt.scope, " ", stmt.variable)
       .addText(" = ", stmt.value, ";");
   }
 
-  addKeywordStmt(expr) {
-    this.addText("\n")
-      .addSpaces(expr.depth * 2)
-      .addText(expr.keyword, ";");
+  addDeclarationStmt(stmt) {
+    this.addSpaces(stmt.depth).addText(stmt.scope, " ", stmt.variable, ";");
   }
 
-  addStatement(expr) {
-    console.log(expr);
+  addAssignmentStmt(stmt) {
+    this.addSpaces(stmt.depth).addText(stmt.variable, " = ", stmt.value, ";");
+  }
+
+  addStateUpdateStmt(stmt) {
+    this.addSpaces(stmt.depth).addText(
+      "set",
+      Utilities.capitalize(stmt.variable),
+      "("
+    );
+    for (let d of stmt.dependencies) {
+      if (d === stmt.variable) {
+        this.addText("(prev", Utilities.capitalize(stmt.variable), ") => ");
+        break;
+      }
+    }
+    let valueTokens = new Tokenizer()
+      .getTokenList(stmt.value)
+      .map((token) => token.name);
+    for (let token of valueTokens) {
+      if (token === stmt.variable) {
+        this.addText("prev", Utilities.capitalize(stmt.variable));
+      } else {
+        this.addText(token);
+      }
+    }
+    this.addText(");");
+  }
+
+  addKeywordStmt(expr) {
+    this.addSpaces(expr.depth).addText(expr.keyword, ";");
+  }
+
+  addExpression(expr) {
     switch (expr.type) {
       case "if":
         this.addIfExpr(expr);
@@ -322,6 +337,9 @@ class ComponentBuilder {
       case "assignment":
         this.addAssignmentStmt(expr);
         break;
+      case "state update":
+        this.addStateUpdateStmt(expr);
+        break;
       case "break":
       case "continue":
         this.addKeywordStmt(expr);
@@ -329,8 +347,9 @@ class ComponentBuilder {
       default:
         break;
     }
-    if (expr.statements)
-      expr.statements.forEach((stmt) => this.addStatement(stmt));
+  }
+
+  closeExpression(expr) {
     switch (expr.type) {
       case "if":
       case "else if":
@@ -339,17 +358,23 @@ class ComponentBuilder {
       case "for":
       case "iterable for":
       case "switch":
-        this.addText("\n")
-          .addSpaces(expr.depth * 2)
-          .addText("}");
+        this.addSpaces(expr.depth).addText("}");
         break;
       default:
         break;
     }
   }
 
+  addStatement(expr) {
+    this.addExpression(expr);
+    if (expr.statements)
+      expr.statements.forEach((stmt) => this.addStatement(stmt));
+    this.closeExpression(expr);
+  }
+
   addSpaces(count) {
-    for (let i = 0; i < count; i++) this.addText(" ");
+    this.addText("\n");
+    for (let i = 0; i < count; i++) this.addText("  ");
     return this;
   }
 
@@ -369,7 +394,7 @@ class ComponentBuilder {
     this.addDefinition();
     this.addAttributes();
     this.addConstructor();
-    //  this.addNgOnInit();
+    this.addNgOnInit();
     this.addTwoWayBinding();
     this.addFunctions();
     this.addJSX();

@@ -22,6 +22,7 @@ export default class HTMLParser extends Parser {
   }
 
   parse(tokenList) {
+    console.log("Parsing " + this.component.name);
     this.init(tokenList);
     this.stack.push(this.root);
     this.HTML_ELEMENT();
@@ -395,8 +396,26 @@ export default class HTMLParser extends Parser {
         this.NG_CLASS();
         break;
       default: // any random property
+        this.RANDOM_PROPERTY();
         break;
     }
+  }
+
+  RANDOM_PROPERTY() {
+    this.checkType("identifier");
+    let attr = {
+      name: this.sym,
+      value: "{",
+    };
+    this.next();
+    this.check("]", "=");
+    this.tokens.unshift(...new Tokenizer().getTokenList(this.sym.slice(1, -1)));
+    this.next();
+    this.check("this", ".");
+    this.checkType("identifier");
+    attr.value += this.sym + "}";
+    this.next();
+    this.element.attributes.push(attr);
   }
 
   NG_STYLE() {
@@ -475,12 +494,19 @@ export default class HTMLParser extends Parser {
 
   EVENT_BINDING() {
     this.check("(");
-    let eventName = defaultEvents[this.sym];
-    if (!eventName)
-      throw new Error(
-        `Unknown event ${this.sym} at line ${this.line}, column ${this.column}`
-      );
-
+    let eventName = "";
+    if (!defaultHTMLElements.includes(this.element.name)) {
+      // Child Component
+      this.checkType("identifier");
+      eventName = this.sym;
+    } else {
+      // Default HTML Element
+      eventName = defaultEvents[this.sym];
+      if (!eventName)
+        throw new Error(
+          `Unknown event ${this.sym} at line ${this.line}, column ${this.column}`
+        );
+    }
     this.next();
     let event = {
       name: eventName,
@@ -494,7 +520,9 @@ export default class HTMLParser extends Parser {
     this.checkType("identifier");
     event.value = this.sym;
     this.next();
-    this.check("(", ")");
+    this.check("(");
+    if (this.sym === "$") this.check("$", "event");
+    this.check(")");
     this.element.events.push(event);
   }
 
@@ -530,8 +558,8 @@ export default class HTMLParser extends Parser {
       this.next();
       this.check("#");
       this.label = this.sym;
-      this.next();
     }
+    this.next();
   }
 
   NG_FOR() {
@@ -555,6 +583,10 @@ export default class HTMLParser extends Parser {
     this.next();
     this.check("of");
     this.element.iteration.iterable = this.sym;
+    this.element.attributes.push({
+      name: "key",
+      value: `{\`${this.component.name}$\{index}\`}`,
+    });
     this.next();
   }
 }

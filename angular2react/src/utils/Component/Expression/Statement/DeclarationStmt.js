@@ -1,6 +1,6 @@
-import Expression from "./Expression";
+import Statement from "./Statement";
 
-class DeclarationExpr extends Expression {
+class DeclarationStmt extends Statement {
   constructor(depth) {
     super("declaration", depth);
     this.scope = "";
@@ -9,4 +9,4 @@ class DeclarationExpr extends Expression {
   }
 }
 
-export default DeclarationExpr;
+export default DeclarationStmt;

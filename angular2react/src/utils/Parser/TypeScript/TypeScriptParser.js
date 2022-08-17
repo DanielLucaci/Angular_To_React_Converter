@@ -3,23 +3,24 @@ import Utilities from "../../Project/Utilities";
 import OutputAttr from "../../Component/Attribute/OutputParameter";
 import DefaultAttr from "../../Component/Attribute/DefaultAttr";
 import InputAttr from "../../Component/Attribute/InputAttr";
-import InitializationExpr from "../../Component/Expression/InitializationExpr";
+import InitializationStmt from "../../Component/Expression/Statement/InitializationStmt";
+import StateUpdateStmt from "../../Component/Expression/Statement/StateUpdateStmt";
 import Function from "../../Component/Function";
-import IfExpr from "../../Component/Expression/If/IfExpr";
+import IfExpr from "../../Component/Expression/Conditional/If/IfExpr";
 import Stack from "../../Project/Stack";
-import WhileExpr from "../../Component/Expression/While/WhileExpr";
-import IterableFor from "../../Component/Expression/For/IterableForExpr";
-import NormalForExpr from "../../Component/Expression/For/NormalForExpr";
+import WhileExpr from "../../Component/Expression/Conditional/While/WhileExpr";
+import IterableFor from "../../Component/Expression/Conditional/For/IterableForExpr";
+import NormalForExpr from "../../Component/Expression/Conditional/For/NormalForExpr";
 import Parameter from "../../Component/Parameter";
-import AssignmentExpr from "../../Component/Expression/AssignmentExpr";
+import AssignmentStmt from "../../Component/Expression/Statement/AssignmentStmt";
 import STMT from "./STMT_TYPE";
-import DeclarationExpr from "../../Component/Expression/DeclarationExpr";
-import ElseIfExpr from "../../Component/Expression/If/ElseIfExpr";
-import ElseExpr from "../../Component/Expression/If/ElseExpr";
-import SwitchExpr from "../../Component/Expression/Switch/SwitchExpr";
-import FunctionCallExpr from "../../Component/Expression/FunctionCallExpr";
-import CaseExpr from "../../Component/Expression/Switch/CaseExpr";
-import DefaultExpr from "../../Component/Expression/Switch/DefaultExpr";
+import DeclarationStmt from "../../Component/Expression/Statement/DeclarationStmt";
+import ElseIfExpr from "../../Component/Expression/Conditional/If/ElseIfExpr";
+import ElseExpr from "../../Component/Expression/Conditional/If/ElseExpr";
+import SwitchExpr from "../../Component/Expression/Conditional/Switch/SwitchExpr";
+import FunctionCallStmt from "../../Component/Expression/Statement/FunctionCallStmt";
+import CaseExpr from "../../Component/Expression/Conditional/Switch/CaseExpr";
+import DefaultExpr from "../../Component/Expression/Conditional/Switch/DefaultExpr";
 import BreakExpr from "../../Component/Expression/Keyword/BreakExpr";
 import ContinueExpr from "../../Component/Expression/Keyword/ContinueExpr";
 
@@ -34,6 +35,7 @@ export default class TypeScriptParser extends Parser {
   }
 
   parse(tokenList) {
+    console.log("Parsing " + this.component.name);
     this.init(tokenList);
     this.IMPORT_STATEMENTS();
     this.COMPONENT();
@@ -67,8 +69,6 @@ export default class TypeScriptParser extends Parser {
           this.check(",");
         }
       } else {
-        //Default Import
-
         this.next();
       }
       this.check("from");
@@ -117,7 +117,24 @@ export default class TypeScriptParser extends Parser {
   CLASS() {
     this.check("export", "class");
     this.componentName = this.sym; // component Name
+    this.checkType("identifier");
     this.next();
+    if (this.sym === "implements") {
+      this.check("implements");
+      while (this.sym !== "{") {
+        this.checkType("identifier");
+        this.next();
+        if (this.sym === ",") {
+          this.check(",");
+        } else if (this.sym === "{") {
+          break;
+        } else {
+          throw new Error(
+            `Unknown symbol ${this.symbol} found at line ${this.line}, column ${this.column}. Expected "," or "{"`
+          );
+        }
+      }
+    }
     this.check("{");
 
     // Parameters
@@ -135,16 +152,22 @@ export default class TypeScriptParser extends Parser {
       return;
     }
 
-    switch (this.sym) {
-      case "Input":
-        this.INPUT();
-        break;
-      case "Output":
-        this.OUTPUT();
-        break;
-      default:
-        this.ATTRIBUTE();
-        break;
+    if (this.sym === "@") {
+      this.check("@");
+      switch (this.sym) {
+        case "Input":
+          this.INPUT();
+          break;
+        case "Output":
+          this.OUTPUT();
+          break;
+        default:
+          throw new Error(
+            `Invalid token ${this.sym} found at line ${this.line}, column ${this.column}. Expected Input or Output`
+          );
+      }
+    } else {
+      this.ATTRIBUTE();
     }
     this.ATTRIBUTES();
   }
@@ -154,12 +177,15 @@ export default class TypeScriptParser extends Parser {
     attr.type = "Input";
     this.check("Input", "(");
     if (this.sym !== ")") {
-      attr.nickname = this.sym.slice(1, -1);
+      attr.name = this.sym.slice(1, -1);
       this.next();
-      this.check(",", "{", "static", ":", "true", "}");
     }
     this.check(")");
-    attr.name = this.sym;
+    if(attr.name !== '') {
+     attr.nickname = this.sym;
+    } else {
+      attr.name = this.sym;
+    }
     this.next();
     if (this.sym === ":") {
       this.next();
@@ -174,12 +200,15 @@ export default class TypeScriptParser extends Parser {
     attr.type = "Output";
     this.check("Output", "(");
     if (this.sym !== ")") {
-      attr.nickname = this.sym.slice(1, -1);
+      attr.name = this.sym.slice(1, -1);
       this.next();
-      this.check(",", "{", "static", ":", "true", "}");
     }
     this.check(")");
-    attr.name = this.sym;
+    if(attr.name !== "") {
+      attr.nickname = this.sym;
+    } else {
+      attr.name = this.sym;
+    }
     this.next();
     this.check("=", "new", "EventEmitter", "<");
     attr.type = "EventEmitter<";
@@ -190,6 +219,7 @@ export default class TypeScriptParser extends Parser {
     attr.type += ">";
     this.check(">", "(", ")", ";");
     this.component.attributes.push(attr);
+    console.log("Found Output");
   }
 
   ATTRIBUTE() {
@@ -230,6 +260,7 @@ export default class TypeScriptParser extends Parser {
 
   /* Function */
   FUNCTIONS() {
+    console.log("Found new Function");
     this.function = new Function();
     this.function.name = this.sym;
     if (
@@ -281,12 +312,20 @@ export default class TypeScriptParser extends Parser {
           }
         }
       }
-      this.func.parameters.push(parameter);
+      this.function.parameters.push(parameter);
       if (this.sym === ",") this.check(",");
     }
-    this.check(")", "{");
-
+    this.check(")");
+    if (this.sym === ":") {
+      this.check(":");
+      while (this.sym !== "{") {
+        this.function.returnType += this.sym;
+        this.next();
+      }
+    }
+    this.check("{");
     this.component.functions.push(this.function);
+    console.log("Function added");
     this.addToStack(this.function);
     this.STATEMENTS();
     this.check("}");
@@ -337,28 +376,31 @@ export default class TypeScriptParser extends Parser {
       return STMT.FOR;
     } else if (statement.includes("switch")) {
       return STMT.SWITCH;
-    } else {
-      // Function call
-      if (statement.slice(-2, -1)[0] === ")") return STMT.FUNCTION_CALL;
-
-      // Assignment
-      if (statement.includes("=")) {
-        if (["let", "var", "const"].includes(statement[0]))
-          return STMT.INITIALIZATION;
-
-        let index = statement.indexOf("=");
-        let stmtCopy = statement.slice(0, index);
-        for (let token of stmtCopy) {
-          let attr = this.component.attributes.find(
-            (attr) => attr.name === token && attr instanceof DefaultAttr
-          );
-          if (attr) return STMT.STATE_UPDATE;
-        }
-      }
-
+    } else if (statement.slice(-2, -1)[0] === ")") {
+      let index = statement.indexOf('(');
+      if(this.tokens[index - 2].type === 'identifier')
+        return STMT.FUNCTION_CALL;
+    } 
+    
+    if (statement.includes("=")) {
+      // Initialization
       if (["let", "var", "const"].includes(statement[0]))
-        return statement.DECLARATION;
+        return STMT.INITIALIZATION;
+
+      // State Update
+      let index = statement.indexOf("=");
+      let stmtCopy = statement.slice(0, index);
+      for (let token of stmtCopy) {
+        let attr = this.component.attributes.find(
+          (attr) => attr.name === token && attr instanceof DefaultAttr
+        );
+        if (attr) return STMT.STATE_UPDATE;
+      }
+      return STMT.ASSIGNMENT;
+    } else if (["let", "var", "const"].includes(statement[0])) {
+      return STMT.DECLARATION;
     }
+    return STMT.ERROR;
   }
 
   STATEMENT() {
@@ -394,6 +436,9 @@ export default class TypeScriptParser extends Parser {
       case STMT.STATE_UPDATE:
         this.STATE_UPDATE_STMT();
         break;
+      case STMT.ASSIGNMENT:
+        this.ASSIGNMENT_STMT();
+        break;
       case STMT.DECLARATION:
         this.DECLARATION_STMT();
         break;
@@ -406,24 +451,24 @@ export default class TypeScriptParser extends Parser {
       case STMT.KEYWORD:
         this.KEYWORD_STMT();
         break;
+      case STMT.ERROR:
+        throw new Error(`Unknown statement type found at line ${this.line}`);
       default:
         break;
     }
   }
 
   ASSIGNMENT_STMT() {
-    let expr = new AssignmentExpr(this.depth);
-    if (this.sym === "this") this.check("this", ".");
-
+    let expr = new AssignmentStmt(this.depth);
     this.checkType("identifier");
-    expr.assignee = this.sym;
+    expr.variable = this.sym;
     this.next();
     this.check("=");
 
     while (this.sym !== ";") {
       if (this.sym === "this") this.check("this", ".");
-
-      if (this.type === "identifier") expr.dependencies.push(this.sym);
+      if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
       expr.value += this.sym;
       this.next();
     }
@@ -436,6 +481,8 @@ export default class TypeScriptParser extends Parser {
     let expr = new CaseExpr(this.depth);
     this.check("case");
     while (this.sym !== ":") {
+      if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
       expr.value += this.sym;
       this.next();
     }
@@ -463,15 +510,15 @@ export default class TypeScriptParser extends Parser {
   }
 
   STATE_UPDATE_STMT() {
-    let expr = new AssignmentExpr(this.depth);
+    console.log("State update STMT");
+    let expr = new StateUpdateStmt(this.depth);
     if (this.sym === "this") this.check("this", ".");
     this.checkType("identifier");
-    expr.assignee = this.sym;
+    expr.variable = this.sym;
     this.next();
     this.check("=");
     while (this.sym !== ";") {
       if (this.sym === "this") this.check("this", ".");
-
       if (this.type === "identifier") expr.dependencies.push(this.sym);
       expr.value += this.sym;
       this.next();
@@ -486,6 +533,8 @@ export default class TypeScriptParser extends Parser {
     this.check("switch", "(");
     if (this.sym === "this") this.check("this", ".");
     while (this.sym !== ")") {
+      if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
       expr.condition += this.sym;
       this.next();
     }
@@ -496,37 +545,38 @@ export default class TypeScriptParser extends Parser {
   }
 
   FUNCTION_CALL_STMT() {
-    let expr = new FunctionCallExpr(this.depth);
+    let expr = new FunctionCallStmt(this.depth);
     if (this.sym === "this") this.check("this", ".");
 
     while (this.sym !== "(") {
       if (this.sym !== "emit") {
         this.checkType("identifier");
-        expr.identifier += this.sym;
+        expr.dependencies.push(this.sym);
+        expr.variable += this.sym;
       }
       this.next();
       if (this.sym === ".") {
         this.check(".");
-        expr.identifier += ".";
+        expr.variable += ".";
       }
     }
+    if (expr.variable.endsWith(".")) expr.variable = expr.variable.slice(0, -1);
 
     this.check("(");
+    let parameter = "";
     while (this.sym !== ")") {
-      let parameter = "";
-      while (this.sym !== "," && this.sym !== ")") {
-        if (this.sym === "this") this.check("this", ".");
-        parameter += this.sym;
-        this.next();
-      }
-      expr.parameters.push(parameter);
+      if (this.sym === "this") this.check("this", ".");
+      parameter += this.sym;
+      this.next();
     }
+    expr.parameters.push(parameter);
     this.check(")", ";");
     this.scope.peek().statements.push(expr);
+    console.log("function call");
   }
 
   DECLARATION_STMT() {
-    let expr = new DeclarationExpr(this.depth);
+    let expr = new DeclarationStmt(this.depth);
     expr.scope = this.sym;
     this.next();
     this.checkType("identifier");
@@ -544,7 +594,7 @@ export default class TypeScriptParser extends Parser {
   }
 
   INITIALIZATION_STMT() {
-    let expr = new InitializationExpr(this.depth);
+    let expr = new InitializationStmt(this.depth);
     expr.scope = this.sym;
     this.next();
     expr.variable = this.sym;
@@ -561,6 +611,8 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
+        if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
         expr.value += this.sym;
         this.next();
       }
@@ -577,6 +629,8 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
+        if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
         expr.condition += this.sym;
         this.next();
       }
@@ -593,6 +647,8 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
+        if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
         expr.condition += this.sym;
         this.next();
       }
@@ -617,6 +673,8 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
+        if(this.type === "identifier'") 
+          expr.dependencies.push(this.sym);
         if (this.type === "operator") expr.condition += " " + this.sym + " ";
         else expr.condition += this.sym;
         this.next();
@@ -676,7 +734,7 @@ export default class TypeScriptParser extends Parser {
   }
 
   ITERABLE_FOR_EXPR() {
-    let expr = new IterableFor(this.sym);
+    let expr = new IterableFor(this.depth);
     this.check("for", "(", "let");
     expr.iterator = this.sym;
     this.next();
@@ -685,6 +743,8 @@ export default class TypeScriptParser extends Parser {
     if (this.sym === "this") this.check("this", ".");
 
     while (this.sym !== ")") {
+      if(this.type === 'identifier') 
+          expr.dependencies.push(this.sym);
       expr.iterable += this.sym;
       this.next();
     }

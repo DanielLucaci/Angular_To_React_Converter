@@ -1,4 +1,4 @@
-import Expression from "./Expression";
+import Expression from "../Expression";
 
 class ConditionalExpr extends Expression {
   constructor(type, depth) {

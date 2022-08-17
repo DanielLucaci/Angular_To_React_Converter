@@ -32,5 +32,6 @@ export default class State {
     static State30 = new State();
     static State31 = new State();
     static State32 = new State();
+    static State33 = new State();
     static State_ERROR = new State();
   }
