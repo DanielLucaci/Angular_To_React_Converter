@@ -8,6 +8,11 @@ export class Tokenizer {
     this.dfa = new DFA();
   }
 
+  /**
+   * Divides a string into individual tokens
+   * @param text - The text that needs to be tokenized 
+   * @returns A list with all the extracted tokens
+   */
   getTokenList(text) {
     let tokenList = [];
     text.split(/\r?\n/).forEach((row, index) => {
@@ -16,6 +21,12 @@ export class Tokenizer {
     return tokenList;
   }
 
+  /**
+   * Divides a row from a text in individual tokens 
+   * @param row - The string that need to be tokenized 
+   * @param index - The index of the row in the text 
+   * @returns - A list with all the extracted tokens
+   */
   tokenize(row, index) {
     let rowCopy = row;
     row = row.trim();
@@ -23,9 +34,6 @@ export class Tokenizer {
 
     while (row !== "") {
       let token = this.dfa.nextToken(row);
-      if (token === "") {
-        console.log("Found null token");
-      }
       let props = {
         type: null,
         name: token,
@@ -33,6 +41,7 @@ export class Tokenizer {
         column: rowCopy.indexOf(row),
       };
 
+      // Check if the token is a keyword
       if (keywords.includes(token)) {
         props.type = "keyword";
       } else {

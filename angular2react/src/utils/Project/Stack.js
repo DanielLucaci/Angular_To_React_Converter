@@ -3,32 +3,45 @@ export default class Stack {
     this.items = [];
   }
 
+  /**
+   * Pushes a new element onto the stack
+   * @param {*} element - The element to be appended to the stack
+   */
   push(element) {
-    // push element into the items
     this.items.push(element);
   }
 
+  /**
+   * @returns - the length of the stack
+   */
   get length() { 
     return this.items.length;
   }
 
+  /**
+   * Return top most element in the stack and removes it from the stack
+   * Throws an error if stack is empty
+   * @returns - the top most element in the stack
+   */
   pop() {
-    // return top most element in the stack
-    // and removes it from the stack
-    // Throws an error if stack is empty
     if (this.items.length === 0) 
       throw new Error('Stack is empty');
     return this.items.pop();
   }
 
+  /**
+   * Return the topmost element from the stack but doesn't delete it.
+   * @returns the topmost element from the stack  
+   */
   peek() {
-    // return the top most element from the stack
-    // but does'nt delete it.
     return this.items[this.items.length - 1];
   }
 
+  /**
+   * Checks if the stack is empty
+   * @returns true if stack is empty, false otherwise 
+   */
   isEmpty() {
-    // return true if stack is empty
     return this.items.length === 0;
   }
 }

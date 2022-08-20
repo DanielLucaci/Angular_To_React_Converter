@@ -11,14 +11,16 @@ import { useEffect } from "react";
 let initial = true;
 
 export default function Converter() {
+  
   const { error, isRunning, project, status } = useSelector(
     (state) => state.conversion
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     if (initial) {
+      console.log(project);
       dispatch(startConversion(project));
       initial = false;
     }
@@ -36,10 +38,11 @@ export default function Converter() {
 
   useEffect(() => {
     if (error !== "" || isRunning === false) {
-      navigate("/upload");
       initial = true;
+      navigate("/upload");
+      dispatch(conversionSliceActions.cancel());
     }
-  }, [error, isRunning, navigate]);
+  }, [error, isRunning, navigate, dispatch]);
 
   useEffect(() => {
     let timeout = null;
@@ -48,7 +51,7 @@ export default function Converter() {
         initial = true;
         dispatch(conversionSliceActions.cancel());
         navigate("/upload");
-      }, 500);
+      }, 300);
     }
 
     return () => {

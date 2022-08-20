@@ -12,8 +12,9 @@ import { Tokenizer } from "../../Tokenizer/Tokenizer";
 export default class HTMLParser extends Parser {
   constructor(project) {
     super();
-    this.depth = 0;
     this.component = project.component;
+    this.filename = `app-${Utilities.componentToSelector(this.component.name)}.component.html`;
+    this.depth = 0;
     this.root = new HTMLElement("root", -1);
     this.element = this.root;
     this.stack = new Stack();

@@ -18,12 +18,21 @@ class Project {
       percentage: 0,
       isRunning: true,
     };
+    this.error = "";
     this.archive = archive;
     this.folders = folders;
   }
 
   getComponentByName(name) {
     return this.components.find((c) => c.name === name);
+  }
+
+  sleep(ms) {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        this.status.isRunning ? res("") : rej("");
+      }, ms);
+    });
   }
 
   updateComponentsPath() {
@@ -57,7 +66,7 @@ class Project {
     const file = this.archive.getFile("styles.css");
     if (file !== null)
       this.folders.src.file("index.css", await file.async("string"));
-    await this.sleep(2000);
+    await this.sleep(500);
   }
 
   getToLocation() {
@@ -78,18 +87,10 @@ class Project {
     });
   }
 
-  sleep(ms) {
-    return new Promise((res, rej) => {
-      setTimeout(() => {
-        this.status.isRunning ? res("") : rej("");
-      }, ms);
-    });
-  }
-
   async parseAppModule() {
     // Parse app.module.ts first
     this.updateStatus("Parsing 'app.module.ts'", 3);
-    await this.sleep(100);
+    await this.sleep(500);
     await this.parse("app.module.ts", new AppModuleParser(this));
   }
 
@@ -119,14 +120,14 @@ class Project {
     let newPercentage = 10 + this.index * this.length;
     let fileName = `${name}.component.ts`;
     this.updateStatus(`Parsing ${fileName}`, newPercentage);
-    await this.sleep(1000);
+    await this.sleep(500);
     await this.parse(`${fileName}`, new TypeScriptParser(this));
 
     // HTML File
     newPercentage = Math.floor(newPercentage + this.length / 4);
     fileName = `${name}.component.html`;
     this.updateStatus(`Parsing ${fileName}`, newPercentage);
-    await this.sleep(1000);
+    await this.sleep(500);
     let domTree = await this.parse(`${fileName}`, new HTMLParser(this));
 
     // Create Component
@@ -136,7 +137,7 @@ class Project {
       newPercentage
     );
     let location = this.getToLocation();
-    await this.sleep(1000);
+    await this.sleep(500);
     await this.createComponent(location, domTree);
 
     // Add the css file
@@ -145,21 +146,26 @@ class Project {
       `Adding styling for ${this.component.name}`,
       newPercentage
     );
-    await this.sleep(1000);
+    await this.sleep(500);
     await this.addCssFile(location, name);
   }
 
   async build() {
     try {
+      // Parse App Module 
       await this.parseAppModule();
       this.length = 80 / this.components.length;
       this.updateComponentsPath();
 
+      // Add Global Styles
       await this.addGlobalStyle();
 
+      // Add App component to the queue
       let queue = [this.getComponentByName("App")];
 
+      // While there are components 
       while (queue.length !== 0) {
+        // Extract first component 
         this.component = queue.shift();
 
         // Mark component as visited
@@ -177,16 +183,17 @@ class Project {
       }
 
       this.updateStatus("Creating archive", 90);
-      await this.sleep(1000);
+      await this.sleep(500);
       if (this.status.isRunning) {
         this.folders.createArchive();
       }
 
       this.updateStatus("Finished", 100);
-      await this.sleep(1000);
+      await this.sleep(500);
     } catch (e) {
       this.status.isRunning = false;
-      console.log("Error " + e.stack);
+      console.log(e.stack);
+      this.error = e.message;
       throw new Error(e.message);
     }
   }

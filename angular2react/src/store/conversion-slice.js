@@ -14,7 +14,7 @@ const conversionInitialState = {
     message: "",
   },
   name: "",
-  error: "",
+  error: ""
 };
 
 const conversionSlice = createSlice({
@@ -23,6 +23,7 @@ const conversionSlice = createSlice({
   reducers: {
     start(state) {
       state.isRunning = true;
+      state.error = "";
       state.status.message = state.project.status.message;
       state.status.percentage = state.project.status.percentage;
     },
@@ -49,6 +50,7 @@ const conversionSlice = createSlice({
     updateStatus(state) {
       state.status.message = state.project.status.message;
       state.status.percentage = state.project.status.percentage;
+      state.error = state.project.error;
     },
     cancel(state) {
       state.project.cancel();
@@ -59,16 +61,13 @@ const conversionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(startConversion.fulfilled, (state, action) => {
+      .addCase(startConversion.fulfilled, (state) => {
         state.isRunning = false;
       })
       .addCase(startConversion.rejected, (state, action) => {
         state.error = action.payload;
         state.isRunning = false;
       })
-      .addCase(startConversion.pending, (state) => {
-        console.log("Pending");
-      });
   },
 });
 

@@ -24,6 +24,8 @@ import DefaultExpr from "../../Component/Expression/Conditional/Switch/DefaultEx
 import BreakExpr from "../../Component/Expression/Keyword/BreakExpr";
 import ContinueExpr from "../../Component/Expression/Keyword/ContinueExpr";
 
+
+
 export default class TypeScriptParser extends Parser {
   constructor(project) {
     super();
@@ -32,6 +34,7 @@ export default class TypeScriptParser extends Parser {
     this.function = null;
     this.depth = 0;
     this.scope = new Stack();
+    this.filename = `app-${Utilities.componentToSelector(this.component.name)}.component.ts`;
   }
 
   parse(tokenList) {

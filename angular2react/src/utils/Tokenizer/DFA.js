@@ -76,10 +76,17 @@ export default class DFA {
       this.createMap();
     }
   
+    /**
+     * Updates the current state.
+     * @param {State} newState - the actual state 
+     */
     setState(newState) {
       this.currentState = newState;
     }
   
+    /**
+     * Creates the DFA.
+     */
     createMap() {
       this.map.set(State.State0, (c) => {
         if (c === "_" || ("a" <= c && c <= "z") || ("A" <= c && c <= "Z")) {
@@ -409,27 +416,35 @@ export default class DFA {
       })
     }
   
+    /**
+     * Resets the current state to the initial state.
+     */
     reset() {
       this.currentState = State.State0;
     }
   
+    /**
+     * Extracts the first token from a string    
+     * @param {string} line - The line where the token should be extracted from  
+     * @returns The extracted token 
+     */
     nextToken(line) {
       let index = 0, lastIndex = -1;
       let charArr = line.trim().split("");
       let lastState = this.currentState;
       while (index < charArr.length) {
         lastState = this.currentState;
-        this.setState(this.map.get(this.currentState)(charArr[index++]));
+        this.setState(this.map.get(this.currentState)(charArr[index++])); // Get to the next state
         if (this.acceptedStates.includes(this.currentState)) {
           lastIndex = index;
-        } else if (this.currentState === State.State_ERROR) {
+        } else if (this.currentState === State.State_ERROR) { 
           if (lastIndex !== -1) {
             this.currentState = lastState;
-            return line.substr(0, lastIndex);
+            return line.slice(0, lastIndex);
           }
           return null;
         }
       }
-      return line.substr(0, lastIndex);
+      return line.slice(0, lastIndex);
     }
   }

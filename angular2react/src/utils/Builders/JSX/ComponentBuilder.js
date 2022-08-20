@@ -7,12 +7,12 @@ import { Tokenizer } from "../../Tokenizer/Tokenizer";
 
 class ComponentBuilder {
   constructor(tree, project) {
-    this.domBuilder = new DOMBuilder();
+    this.dom = new DOMBuilder();
+    this.dom.traversal(tree);
     this.text = "";
     this.component = project.component;
     this.project = project;
     this.tree = tree;
-    this.domBuilder.traversal(this.tree);
   }
 
   addImports() {
@@ -26,7 +26,7 @@ class ComponentBuilder {
         componentPath
       );
       if (relativePath[0] !== "..") relativePath.unshift(".");
-      this.addText("import", " ", subComponentName, " ", "from", " ").addText(
+      this.addText("import ", subComponentName, " from ").addText(
         `'${relativePath.join("/")}/${subComponentName}';\n`
       );
     });
@@ -45,10 +45,10 @@ class ComponentBuilder {
     if (this.component.hasConstructor) hooks.push("useEffect");
 
     if (hooks.length !== 0) {
-      this.addText("import", " ", "{", " ");
-      hooks.forEach((hook) => this.addText(hook, ",", " "));
+      this.addText("import { ");
+      hooks.forEach((hook) => this.addText(hook, ", "));
       this.text = this.text.slice(0, -2);
-      this.addText(" ", "}", " ", "from", " ", "'react'", ";", "\n");
+      this.addText(" } from 'react';\n");
     }
   }
 
@@ -84,38 +84,38 @@ class ComponentBuilder {
       });
 
     if (props.length !== 0) {
-      this.addText("{", " ");
+      this.addText("{ ");
       props.forEach((prop) => {
-        this.addText(prop, ",", " ");
+        this.addText(prop, ", ");
       });
       this.text = this.text.slice(0, -2);
-      this.addText(" ", "}");
+      this.addText(" }");
     }
   }
 
   addExport() {
-    this.addText("export", " ", "default", " ", this.component.name, ";");
+    this.addText("export default ", this.component.name, ";");
   }
 
   addJSX() {
     let tabs = 2;
     let reactFragment = false;
 
-    this.addText("\n", "return", " ", "(", "\n");
+    this.addText("\nreturn (\n");
     if (this.tree.children.length > 1) {
       // React Fragment Needed
       tabs = 3;
       reactFragment = true;
       this.addText("\t<div>\n");
     }
-    this.domBuilder.dom.split("\n").forEach((line) => {
+    this.dom.text.split("\n").forEach((line) => {
       for (let i = 0; i < tabs; i++) this.text += "  ";
       this.text += line + "\n";
     });
     this.text = this.text.slice(0, -tabs - 1);
     if (reactFragment === true) this.addText("  </div>\n");
 
-    this.addText("  ", ")", ";", "\n", "}", "\n", "\n");
+    this.addText("  );\n}\n\n");
   }
 
   addText(...symbols) {
@@ -152,7 +152,7 @@ class ComponentBuilder {
     const dependencies = this.extractDependencies(stmt);
     this.addStatement(stmt);
     this.addSpaces(stmt.depth).addText("}, [");
-    dependencies.forEach((dep) => this.addText(dep, ",", " "));
+    dependencies.forEach((dep) => this.addText(dep, ", "));
     if (dependencies.length > 0) this.text = this.text.slice(0, -2);
     this.addText("])\n");
   }
@@ -169,7 +169,6 @@ class ComponentBuilder {
       }
 
       if (stmt.dependencies) {
-        console.log(stmt.dependencies);
         stmt.dependencies.forEach((dep) => {
           if (!variables.includes(dep) && !dependencies.includes(dep)) {
             dependencies.push(dep);

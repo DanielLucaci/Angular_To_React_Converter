@@ -8,6 +8,8 @@ import LoadingSpinner from "./components/Layout/LoadingSpinner/LoadingSpinner";
 import HTMLSupport from "./pages/About/Support/HTML/HTMLSupport";
 import AngularSupport from "./pages/About/Support/Angular/AngularSupport";
 import JavaScriptSupport from "./pages/About/Support/JavaScript/JavaScriptSupport";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const Contact = React.lazy(() => import("./pages/Contact/Contact"));
 const Converter = React.lazy(() => import("./pages/Converter/Converter"));
@@ -22,6 +24,21 @@ const Upload = React.lazy(() => import("./pages/Upload/Upload"));
 
 function App() {
   const isRunning = useSelector((state) => state.conversion.isRunning);
+  const [allowConverter, setAllowConverter] = useState(false);
+  useEffect(() => {
+    let timeout = null;
+    if (isRunning === false) {
+      timeout = setTimeout(() => {
+        setAllowConverter(false);
+      }, 200);
+    } else {
+      setAllowConverter(true);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isRunning]);
 
   return (
     <div className="container">
@@ -46,7 +63,7 @@ function App() {
             <Route path="how-to-use" element={<HowToUse />}></Route>
           </Route>
           <Route path="upload" element={<Upload />}></Route>
-          {isRunning && (
+          {allowConverter && (
             <Route path="converter" element={<Converter />}></Route>
           )}
           <Route path="contact" element={<Contact />}></Route>

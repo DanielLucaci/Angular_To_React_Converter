@@ -2,16 +2,8 @@ const directives = [
   { name: "*ngIf", link: "https://angular.io/api/common/NgIf" },
   { name: "*ngFor", link: "https://angular.io/api/common/NgForOf" },
   {
-    name: "ngClass",
-    link: "https://angular.io/api/common/NgClass",
-  },
-  {
     name: "ngStyle",
     link: "https://angular.io/api/common/NgStyle",
-  },
-  {
-    name: "ngSwitch",
-    link: "https://angular.io/api/common/NgSwitch",
   },
 ];
 

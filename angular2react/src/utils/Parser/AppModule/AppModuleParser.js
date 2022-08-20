@@ -6,6 +6,7 @@ class AppModuleParser extends Parser {
   constructor(project) { 
     super();
     this.project = project;
+    this.filename = 'app.module.ts';
   }
 
   parse(tokenList) {

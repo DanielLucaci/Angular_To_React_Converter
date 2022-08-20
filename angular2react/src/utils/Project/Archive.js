@@ -5,10 +5,19 @@ export class Archive {
     this.archive = null;
   }
 
+  /**
+   * Loads an archive asynchronously.
+   * @param {*} archive - the archive with the Angular project  
+   */
   async loadArchive(archive) {
     this.archive = await new JSZip().loadAsync(archive);
   }
 
+  /**
+   * Checks if the archive contains a specific folder 
+   * @param {string} folderName - the name of the folder 
+   * @returns - true if the folder was found, false otherwise 
+   */
   hasFolder(folderName) {
     const index = Object.entries(this.archive.files).findIndex((folder) => {
       const { dir, name } = folder[1];
@@ -17,6 +26,11 @@ export class Archive {
     return index === -1 ? false : true;
   }
 
+  /**
+   * Checks if the archive contains a specific file 
+   * @param {string} fileName - the name of the file 
+   * @returns true if the file was found, false otherwise
+   */
   hasFile(fileName) {
     const index = Object.entries(this.archive.files).findIndex((file) => {
       const { dir, name } = file[1];
@@ -25,14 +39,12 @@ export class Archive {
     return index === -1 ? false : true;
   }
 
-  // getFileName(file) {
-  //   return file.name.split("/").slice(-1);
-  // }
-
-  // getFileParent(file) {
-  //   return file.name.split("/").slice(-2, -1) || "root";
-  // }
-
+  /**
+   * Searches a file in the archive and returns a reference to it 
+   * Throws an error if no file with the specified name was found 
+   * @param {string} fileName - the name of the file 
+   * @returns A reference to the file 
+   */
   getFile(fileName) {
     if (this.hasFile(fileName) === false) {
       throw new Error("File couldn't be found!");
@@ -44,23 +56,11 @@ export class Archive {
     return file;
   }
 
-  // getFolder(folderName) {
-  //   if (this.hasFolder(folderName) === false) {
-  //     throw new Error("Folder couldn't be found");
-  //   }
-  //   const folder = Object.entries(this.archive.files).find((f) => {
-  //     const { dir, name } = f[1];
-  //     return name.split("/").splice(-1)[0] === folderName && dir === true;
-  //   })[1];
-  //   return folder;
-  // }
-
-  // getFilesInFolder(folderName, type = null) {
-  //   if (this.hasFolder(folderName) === false) {
-  //     throw new Error("Couldn't find folder");
-  //   }
-  // }
-
+  /**
+   * Collects general information about a file and returns it 
+   * @param {string} fileName - the name of the file 
+   * @returns An object with the collected information  
+   */
   getFileInfo(fileName) {
     let file = this.getFile(fileName);
     let data = file.name.split("/");
@@ -81,6 +81,11 @@ export class Archive {
     };
   }
 
+  /**
+   * Checks if the archive containing the Angular project is valid, i.e. 
+   * it contains the 'App' component and the 'src' folder.
+   * @returns true if the aforementioned conditions are met, false otherwise  
+   */
   isValid() {
     let requiredFiles = [
       "app.component.html",
