@@ -20,7 +20,6 @@ export default function Converter() {
   
   useEffect(() => {
     if (initial) {
-      console.log(project);
       dispatch(startConversion(project));
       initial = false;
     }

@@ -23,7 +23,6 @@ export default class HTMLParser extends Parser {
   }
 
   parse(tokenList) {
-    console.log("Parsing " + this.component.name);
     this.init(tokenList);
     this.stack.push(this.root);
     this.HTML_ELEMENT();

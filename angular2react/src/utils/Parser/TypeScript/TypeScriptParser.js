@@ -38,7 +38,6 @@ export default class TypeScriptParser extends Parser {
   }
 
   parse(tokenList) {
-    console.log("Parsing " + this.component.name);
     this.init(tokenList);
     this.IMPORT_STATEMENTS();
     this.COMPONENT();
@@ -222,7 +221,6 @@ export default class TypeScriptParser extends Parser {
     attr.type += ">";
     this.check(">", "(", ")", ";");
     this.component.attributes.push(attr);
-    console.log("Found Output");
   }
 
   ATTRIBUTE() {
@@ -263,7 +261,6 @@ export default class TypeScriptParser extends Parser {
 
   /* Function */
   FUNCTIONS() {
-    console.log("Found new Function");
     this.function = new Function();
     this.function.name = this.sym;
     if (
@@ -328,7 +325,6 @@ export default class TypeScriptParser extends Parser {
     }
     this.check("{");
     this.component.functions.push(this.function);
-    console.log("Function added");
     this.addToStack(this.function);
     this.STATEMENTS();
     this.check("}");
@@ -513,7 +509,6 @@ export default class TypeScriptParser extends Parser {
   }
 
   STATE_UPDATE_STMT() {
-    console.log("State update STMT");
     let expr = new StateUpdateStmt(this.depth);
     if (this.sym === "this") this.check("this", ".");
     this.checkType("identifier");
@@ -575,7 +570,6 @@ export default class TypeScriptParser extends Parser {
     expr.parameters.push(parameter);
     this.check(")", ";");
     this.scope.peek().statements.push(expr);
-    console.log("function call");
   }
 
   DECLARATION_STMT() {

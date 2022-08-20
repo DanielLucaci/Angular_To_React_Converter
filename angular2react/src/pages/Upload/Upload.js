@@ -13,11 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import conversionSliceActions, {
   loadArchive,
 } from "../../store/conversion-slice";
-import { useEffect } from "react";
 
 const Upload = () => {
   const input = useRef("");
-  const {  isRunning, error, name, uploaded, project } = useSelector(
+  const {  isRunning, error, name, uploaded, } = useSelector(
     (state) => state.conversion
   );
   const { setError, removeArchive, start } = conversionSliceActions;
@@ -25,10 +24,6 @@ const Upload = () => {
   const [clientRect, setClientRect] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    console.log(project);
-  }, [project])
     
   const changeHandler = async () => {
     dispatch(
@@ -44,7 +39,6 @@ const Upload = () => {
   }, []);
 
   const removeArchiveHandler = () => {
-    console.log("Archive Removed");
     dispatch(removeArchive());
     input.current.value = "";
   };
