@@ -128,6 +128,7 @@ class Project {
     fileName = `${name}.component.html`;
     this.updateStatus(`Parsing ${fileName}`, newPercentage);
     await this.sleep(500);
+
     let domTree = await this.parse(`${fileName}`, new HTMLParser(this));
 
     // Create Component
@@ -192,7 +193,6 @@ class Project {
       await this.sleep(500);
     } catch (e) {
       this.status.isRunning = false;
-      console.log(e.stack);
       this.error = e.message;
       throw new Error(e.message);
     }

@@ -7,7 +7,7 @@ class DOMBuilder {
     this.textBuilder = new TextBuilder();
   }
 
-  get text() { 
+  get text() {
     return this.textBuilder.text;
   }
 
@@ -91,7 +91,10 @@ class DOMBuilder {
     if (this.tree.classes.length !== 0) {
       this.textBuilder.add(" className='");
       this.tree.classes.forEach((c, index) => {
-        this.textBuilder.add(c, index < this.tree.classes.length - 1 ? " " : "");
+        this.textBuilder.add(
+          c,
+          index < this.tree.classes.length - 1 ? " " : ""
+        );
       });
       this.textBuilder.add("'");
     }
@@ -100,6 +103,16 @@ class DOMBuilder {
   addId() {
     if (this.tree.id.name !== "")
       this.textBuilder.add(" id='", this.tree.id.name, "'");
+  }
+
+  addStyles() {
+    if (this.tree.styles.length > 0) {
+      this.textBuilder.add(" style={{");
+      for (let style of this.tree.styles) {
+        this.textBuilder.add(style.property, ": ", style.value, ",");
+      }
+      this.textBuilder.removeLastCharacters(1).add("}}");
+    }
   }
 
   addDefaultAttributes() {
@@ -133,12 +146,13 @@ class DOMBuilder {
   }
 
   bindFunctions(bindObj) {
-    return { 
+    return {
       addClasses: this.addClasses.bind(bindObj),
       addDefaultAttributes: this.addDefaultAttributes.bind(bindObj),
       addEvents: this.addEvents.bind(bindObj),
       addId: this.addId.bind(bindObj),
       addNewLine: this.addNewLine.bind(bindObj),
+      addStyles: this.addStyles.bind(bindObj),
       addTwoWayBinding: this.addTwoWayBinding.bind(bindObj),
       conditionalBegin: this.conditionalBegin.bind(bindObj),
       conditionalEnd: this.conditionalEnd.bind(bindObj),
@@ -147,7 +161,7 @@ class DOMBuilder {
       ngContent: this.ngContent.bind(bindObj),
       tagBegin: this.tagBegin.bind(bindObj),
       tagEnd: this.tagEnd.bind(bindObj),
-    }
+    };
   }
 
   traversal(tree) {
@@ -171,6 +185,7 @@ class DOMBuilder {
           f.tagBegin();
           f.addClasses();
           f.addId();
+          f.addStyles();
           f.addTwoWayBinding();
           f.addEvents();
           f.addDefaultAttributes();
@@ -188,7 +203,8 @@ class DOMBuilder {
         f.addNewLine();
         return;
       }
-      if (tree.children.length !== 0) this.textBuilder.addEmptySpaces(tree.depth);
+      if (tree.children.length !== 0)
+        this.textBuilder.addEmptySpaces(tree.depth);
       f.tagEnd();
       f.conditionalEnd();
       f.iterationEnd();

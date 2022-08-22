@@ -398,9 +398,6 @@ class ComponentBuilder {
     this.addFunctions();
     this.addJSX();
     this.addExport();
-
-    console.log(this.text);
-
     return this.text;
   }
 }

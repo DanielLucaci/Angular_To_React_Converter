@@ -13,7 +13,9 @@ export default class HTMLParser extends Parser {
   constructor(project) {
     super();
     this.component = project.component;
-    this.filename = `app-${Utilities.componentToSelector(this.component.name)}.component.html`;
+    this.filename = `app-${Utilities.componentToSelector(
+      this.component.name
+    )}.component.html`;
     this.depth = 0;
     this.root = new HTMLElement("root", -1);
     this.element = this.root;
@@ -323,7 +325,6 @@ export default class HTMLParser extends Parser {
 
   DEFAULT_ELEMENT() {
     let tagName = this.sym;
-
     // Check if the element exists
     if (!defaultHTMLElements.includes(this.sym)) {
       throw new Error("Unknown tag found" + this.sym);
@@ -352,7 +353,6 @@ export default class HTMLParser extends Parser {
   NG_TEMPLATE() {
     this.check("template", "#", this.label);
     this.incrementDepth(2);
-    this.element.depth++;
     this.addElementOnTheStack(this.createNewElement("ng-template"));
     this.element = this.stack.peek();
     this.element.label = this.label;
@@ -420,13 +420,12 @@ export default class HTMLParser extends Parser {
 
   NG_STYLE() {
     this.check("ngStyle", "]", "=");
-
-    let styles = this.sym.slice(1, -1).replace(/\s/g, "").split(",");
+    let styles = this.sym.slice(2, -2).split(",");
     for (let s of styles) {
       let style = new HTMLStyle();
-      let [property, value] = s.replace(/\s/g, "").split(":");
-      property = property.slice(1, -1);
+      let [property, value] = s.split(":");
       if (property.includes("-")) {
+        property = property.slice(1, -1);
         let newProperty = "";
         property = property.split("-");
         if (property[0] === "-") {
@@ -443,6 +442,7 @@ export default class HTMLParser extends Parser {
       style.value = value;
       this.element.styles.push(style);
     }
+    this.next();
   }
 
   NG_CLASS() {
@@ -534,12 +534,12 @@ export default class HTMLParser extends Parser {
     condition = condition.slice(1, -1).split(";");
     const ifCond = condition[0];
     let elseCond = "";
-    try {
+    if(condition.length > 1) {
       elseCond = condition[1]
         .split(" ")
         .filter((token) => token !== "")
         .map((token) => new Token({ name: token }));
-    } catch (e) {}
+    }
 
     this.element.depth += 2;
     this.incrementDepth(2);
@@ -552,11 +552,6 @@ export default class HTMLParser extends Parser {
       this.element.condition.hasElse = true;
 
       // Extract label
-      this.tokens.unshift(new Token({ name: this.sym.slice(1) }));
-      this.tokens.unshift(new Token({ name: this.sym[0] }));
-
-      this.next();
-      this.check("#");
       this.label = this.sym;
     }
     this.next();

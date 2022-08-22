@@ -42,7 +42,6 @@ export default class TypeScriptParser extends Parser {
     this.IMPORT_STATEMENTS();
     this.COMPONENT();
     this.CLASS();
-    console.log(this.component);
   }
 
   extractFromStack() {

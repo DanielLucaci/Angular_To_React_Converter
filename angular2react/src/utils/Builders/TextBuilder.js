@@ -14,6 +14,16 @@ class TextBuilder {
   }
 
   /**
+   * Removes the last 'count' characters from the text
+   * @param {number} count 
+   * @returns a reference to the current object
+   */
+  removeLastCharacters(count) {
+    this.text = this.text.slice(0, -count); 
+    return this;
+  }
+
+  /**
    * Removes the last row from the text.
    * @returns a reference to the current object.
    */
