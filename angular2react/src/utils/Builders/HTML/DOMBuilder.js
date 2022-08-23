@@ -13,21 +13,26 @@ class DOMBuilder {
 
   iterationBegin() {
     if (this.tree.iteration !== null) {
-      this.textBuilder.add("{\n").addEmptySpaces(this.tree.depth + 1);
+      this.textBuilder
+        .removeLastRow()
+        .addEmptySpaces(this.tree.depth - 3)
+        .add("{\n")
       const { iterator, iterable } = this.tree.iteration;
       this.textBuilder
+        .addEmptySpaces(this.tree.depth - 2)
         .add(iterable, ".map((", iterator, ", index) => {\n")
-        .addEmptySpaces(this.tree.depth + 2)
-        .add("return (\n");
+        .addEmptySpaces(this.tree.depth - 1)
+        .add("return (\n")
+        .addEmptySpaces(this.tree.depth)
     }
   }
 
   iterationEnd() {
     if (this.tree.iteration !== null) {
       this.textBuilder
-        .addEmptySpaces(this.tree.depth + 2)
+        .addEmptySpaces(this.tree.depth - 2)
         .add(")\n")
-        .addEmptySpaces(this.tree.depth + 1)
+        .addEmptySpaces(this.tree.depth - 3)
         .add("})}\n");
     }
   }

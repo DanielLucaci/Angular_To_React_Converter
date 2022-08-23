@@ -192,6 +192,9 @@ export default class HTMLParser extends Parser {
 
   END_OF_ELEMENT() {
     this.check("/");
+    if (this.element.iteration !== null) {
+      this.decrementDepth(2);
+    }
     switch (this.sym) {
       case "app":
         this.END_OF_CHILD_COMPONENT();
@@ -534,7 +537,7 @@ export default class HTMLParser extends Parser {
     condition = condition.slice(1, -1).split(";");
     const ifCond = condition[0];
     let elseCond = "";
-    if(condition.length > 1) {
+    if (condition.length > 1) {
       elseCond = condition[1]
         .split(" ")
         .filter((token) => token !== "")
@@ -582,6 +585,8 @@ export default class HTMLParser extends Parser {
       name: "key",
       value: `{\`${this.component.name}$\{index}\`}`,
     });
+    this.incrementDepth(2);
+    this.element.depth = this.depth;
     this.next();
   }
 }

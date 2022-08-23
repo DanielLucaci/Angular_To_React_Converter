@@ -252,7 +252,7 @@ export default class TypeScriptParser extends Parser {
   INITIAL_VALUE(attr) {
     let initialValue = "";
     while (this.sym !== ";") {
-      initialValue += this.sym;
+      initialValue += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;
       this.next();
     }
     attr.initialValue = initialValue;
@@ -305,7 +305,7 @@ export default class TypeScriptParser extends Parser {
               stop = true;
               break;
             default:
-              parameter.defaultValue += this.sym;
+              parameter.defaultValue += (this.type === 'operator') ? ` ${this.sym} ` : this.sym ;
               this.next();
               break;
           }
@@ -467,7 +467,7 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") this.check("this", ".");
       if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-      expr.value += this.sym;
+      expr.value += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;
       this.next();
     }
     this.check(";");
@@ -481,7 +481,7 @@ export default class TypeScriptParser extends Parser {
     while (this.sym !== ":") {
       if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-      expr.value += this.sym;
+      expr.value += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;
       this.next();
     }
     this.check(":");
@@ -517,7 +517,7 @@ export default class TypeScriptParser extends Parser {
     while (this.sym !== ";") {
       if (this.sym === "this") this.check("this", ".");
       if (this.type === "identifier") expr.dependencies.push(this.sym);
-      expr.value += this.sym;
+      expr.value += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
       this.next();
     }
 
@@ -532,7 +532,7 @@ export default class TypeScriptParser extends Parser {
     while (this.sym !== ")") {
       if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-      expr.condition += this.sym;
+      expr.condition += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
       this.next();
     }
 
@@ -549,7 +549,7 @@ export default class TypeScriptParser extends Parser {
       if (this.sym !== "emit") {
         this.checkType("identifier");
         expr.dependencies.push(this.sym);
-        expr.variable += this.sym;
+        expr.variable += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
       }
       this.next();
       if (this.sym === ".") {
@@ -563,7 +563,7 @@ export default class TypeScriptParser extends Parser {
     let parameter = "";
     while (this.sym !== ")") {
       if (this.sym === "this") this.check("this", ".");
-      parameter += this.sym;
+      parameter += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
       this.next();
     }
     expr.parameters.push(parameter);
@@ -581,7 +581,7 @@ export default class TypeScriptParser extends Parser {
     if (this.sym === ":") {
       this.check(":");
       while (this.sym !== ";") {
-        expr.datatype += this.sym;
+        expr.datatype += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -598,7 +598,7 @@ export default class TypeScriptParser extends Parser {
     if (this.sym === ":") {
       this.check(":");
       while (this.sym !== "=") {
-        expr.datatype += this.sym;
+        expr.datatype += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -609,7 +609,7 @@ export default class TypeScriptParser extends Parser {
       } else {
         if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-        expr.value += this.sym;
+        expr.value += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -627,7 +627,7 @@ export default class TypeScriptParser extends Parser {
       } else {
         if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-        expr.condition += this.sym;
+        expr.condition += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -645,7 +645,7 @@ export default class TypeScriptParser extends Parser {
       } else {
         if(this.type === 'identifier') 
           expr.dependencies.push(this.sym);
-        expr.condition += this.sym;
+        expr.condition += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -671,8 +671,7 @@ export default class TypeScriptParser extends Parser {
       } else {
         if(this.type === "identifier'") 
           expr.dependencies.push(this.sym);
-        if (this.type === "operator") expr.condition += " " + this.sym + " ";
-        else expr.condition += this.sym;
+        expr.condition += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;
         this.next();
       }
     }
@@ -693,7 +692,7 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
-        expr.initialValue += this.sym;
+        expr.initialValue += (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }
@@ -706,7 +705,7 @@ export default class TypeScriptParser extends Parser {
       if (this.sym === "this") {
         this.check("this", ".");
       } else {
-        expr.stopCondition += this.sym;
+        expr.stopCondition +=  (this.type === 'operator') ? ` ${this.sym} ` : this.sym;;
         this.next();
       }
     }

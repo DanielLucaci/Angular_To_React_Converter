@@ -106,7 +106,7 @@ class ComponentBuilder {
       // React Fragment Needed
       tabs = 3;
       reactFragment = true;
-      this.addText("\t<div>\n");
+      this.addText("    <div>\n");
     }
     this.dom.text.split("\n").forEach((line) => {
       for (let i = 0; i < tabs; i++) this.text += "  ";
